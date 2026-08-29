@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-ink: #15171A;
+    --surface: #1E2124;
+    --border-line: #33373C;
+    --text-ivory: #F3F0E8;
+    --text-muted: #93979C;
+    --accent-sage: #7FA98A;
+    --accent-sage-dark: #5C8268;
+    --accent-brass: #C6A75C;
+  }
+
+  body {
+    background-color: #15171A;
+    color: #F3F0E8;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #7FA98A;
+    color: #15171A;
+  }
+}
+
+/* Monic Font Fallback Definition if custom font files are placed in /fonts/ */
+@font-face {
+  font-family: "Monic";
+  src: url("/fonts/monic.woff2") format("woff2"),
+       url("/fonts/monic.otf") format("opentype"),
+       url("/fonts/monic.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
