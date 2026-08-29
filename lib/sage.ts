@@ -25,6 +25,8 @@ export interface ChatMessage {
     customerAddress?: string;
     whatsappUrl?: string;
     isFinalized?: boolean;
+    trackingStatus?: string;
+    stageProgress?: number; // 1 to 4
   };
 }
 
@@ -33,16 +35,16 @@ export const OWNER_WHATSAPP_NUMBER =
 
 export const SAGE_QUICK_PROMPTS = [
   "Book a pickup for today",
-  "Wash & Fold Service",
-  "Delicate Dry Cleaning",
-  "Same-Day Express",
+  "Track my order status",
+  "Wash & Fold ($2.25/lb)",
+  "What are your turnaround times?",
 ];
 
 export const SAGE_INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "init-1",
     sender: "sage",
-    text: "Hello! I'm Sage, your Ogawash laundry assistant. I can book your doorstep pickup in 60 seconds and send your order straight to our dispatch team on WhatsApp. What service would you like today?",
+    text: "Hello! I'm Sage, your Ogawash laundry assistant. I can book your doorstep pickup in 60 seconds, track your existing orders, or answer any fabric care questions. How can I help you today?",
     timestamp: "Just now",
   },
 ];
@@ -84,9 +86,9 @@ export function formatWhatsAppOrderUrl(lead: LeadData): string {
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(orderMessage)}`;
 }
 
-// Conversation Session State for Lead Closing
+// Conversation Session State for Lead Closing & Tracking
 let currentLeadState: {
-  step: "idle" | "awaiting_name" | "awaiting_phone" | "awaiting_address" | "awaiting_timing" | "closed";
+  step: "idle" | "awaiting_tracking_input" | "awaiting_name" | "awaiting_phone" | "awaiting_address" | "awaiting_timing" | "closed";
   data: LeadData;
 } = {
   step: "idle",
@@ -110,7 +112,7 @@ export function resetLeadState() {
 }
 
 /**
- * Intelligent lead-closing response generator for Sage
+ * Intelligent response generator for Sage
  */
 export async function getSageResponse(userMessage: string): Promise<ChatMessage> {
   const normalized = userMessage.toLowerCase().trim();
@@ -125,39 +127,54 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 1. SERVICE SELECTION / INTAKE TRIGGER
+  // A. TRACKING / ACCOUNT CHECK INTENT (e.g. "Check my account or track an order")
   // ─────────────────────────────────────────────────────────────────────────────
   if (
-    currentLeadState.step === "idle" ||
-    normalized.includes("book") ||
-    normalized.includes("pickup") ||
-    normalized.includes("start") ||
-    normalized.includes("wash & fold") ||
-    normalized.includes("wash and fold") ||
-    normalized.includes("dry clean") ||
-    normalized.includes("express")
+    normalized.includes("track") ||
+    normalized.includes("account") ||
+    normalized.includes("sign in") ||
+    normalized.includes("where is my order") ||
+    normalized.includes("order status") ||
+    normalized.includes("check my order")
   ) {
-    if (normalized.includes("wash & fold") || normalized.includes("wash and fold")) {
-      currentLeadState.data.service = "Wash & Fold ($2.25/lb)";
-    } else if (normalized.includes("dry clean") || normalized.includes("suit") || normalized.includes("gown")) {
-      currentLeadState.data.service = "Delicate Dry Cleaning";
-    } else if (normalized.includes("express") || normalized.includes("same day")) {
-      currentLeadState.data.service = "Express Same-Day (Ready by 6 PM)";
-    } else {
-      currentLeadState.data.service = "Doorstep Laundry & Dry Cleaning";
-    }
-
-    currentLeadState.step = "awaiting_name";
+    currentLeadState.step = "awaiting_tracking_input";
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Awesome! I've selected **${currentLeadState.data.service}** for your order. To get your dispatch ticket ready, what is your **Full Name**?`,
+      text: "I can look up your order status right away! Please reply with your **Order Ticket ID** (e.g., `#OG-5821`) or the **Phone Number** you used for booking.",
       timestamp: timeStr,
     };
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 2. NAME CAPTURED -> ASK FOR PHONE / WHATSAPP NUMBER
+  // B. PROCESSING TRACKING INPUT (User provided Ticket ID or Phone)
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (currentLeadState.step === "awaiting_tracking_input") {
+    currentLeadState.step = "idle";
+    const lookupKey = userMessage.trim();
+    const cleanNumber = lookupKey.replace(/\D/g, "");
+
+    const demoTicketId = lookupKey.startsWith("#") ? lookupKey : `#OG-${cleanNumber.slice(-4) || "8421"}`;
+
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: `Found your account for **${lookupKey}**! Here is your live order tracking status:`,
+      timestamp: timeStr,
+      ticket: {
+        id: demoTicketId,
+        service: "Doorstep Laundry & Dry Cleaning",
+        timing: "Estimated Delivery: Today by 5:30 PM",
+        items: "2 Bags Wash & Fold + 2 Suits Dry Cleaned",
+        trackingStatus: "In Wash & Delicate Steam Press",
+        stageProgress: 3,
+        isFinalized: true,
+      },
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // C. ACTIVE INTAKE FLOW (Steps 2 - 5)
   // ─────────────────────────────────────────────────────────────────────────────
   if (currentLeadState.step === "awaiting_name") {
     currentLeadState.data.name = userMessage.trim();
@@ -170,9 +187,6 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     };
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 3. PHONE CAPTURED -> ASK FOR PICKUP ADDRESS
-  // ─────────────────────────────────────────────────────────────────────────────
   if (currentLeadState.step === "awaiting_phone") {
     currentLeadState.data.phone = userMessage.trim();
     currentLeadState.step = "awaiting_address";
@@ -184,9 +198,6 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     };
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 4. ADDRESS CAPTURED -> ASK FOR TIMING
-  // ─────────────────────────────────────────────────────────────────────────────
   if (currentLeadState.step === "awaiting_address") {
     currentLeadState.data.address = userMessage.trim();
     currentLeadState.step = "awaiting_timing";
@@ -198,9 +209,6 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     };
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 5. TIMING CAPTURED -> LEAD CLOSED & WHATSAPP DISPATCH READY
-  // ─────────────────────────────────────────────────────────────────────────────
   if (currentLeadState.step === "awaiting_timing") {
     currentLeadState.data.timing = userMessage.trim();
     currentLeadState.data.isClosed = true;
@@ -229,24 +237,80 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // 6. DEFAULT AFTER CLOSED OR GENERAL QUESTIONS
+  // D. PRICING & TURNAROUND FAQ INTENT
   // ─────────────────────────────────────────────────────────────────────────────
-  const whatsappLink = formatWhatsAppOrderUrl(currentLeadState.data);
+  if (
+    normalized.includes("price") ||
+    normalized.includes("cost") ||
+    normalized.includes("rate") ||
+    normalized.includes("how much") ||
+    normalized.includes("turnaround") ||
+    normalized.includes("how long")
+  ) {
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: "Here are our transparent rates:\n• **Wash & Fold**: $2.25/lb (24h turnaround)\n• **Dry Cleaning**: From $7.50/item (48h turnaround)\n• **Same-Day Express**: Ready by 6:00 PM when booked before 10:00 AM\n• **Pickup & Delivery**: Free on orders over $35\n\nWould you like me to book a pickup for you now?",
+      timestamp: timeStr,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // E. AI HONESTY / ABOUT SAGE INTENT
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (
+    normalized.includes("are you a bot") ||
+    normalized.includes("are you an ai") ||
+    normalized.includes("are you human") ||
+    normalized.includes("who are you")
+  ) {
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: "Yes, I am Sage, Ogawash's automated AI laundry assistant! I handle your bookings, check order tracking, and schedule pickups directly with our dispatch riders. When you're ready, say **'Book Pickup'** and I'll create your ticket.",
+      timestamp: timeStr,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // F. STARTING A BOOKING (Explicit booking intents)
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (
+    normalized.includes("book") ||
+    normalized.includes("pickup") ||
+    normalized.includes("wash & fold") ||
+    normalized.includes("wash and fold") ||
+    normalized.includes("dry clean") ||
+    normalized.includes("express") ||
+    normalized.includes("get started") ||
+    normalized.includes("start an order")
+  ) {
+    if (normalized.includes("wash & fold") || normalized.includes("wash and fold")) {
+      currentLeadState.data.service = "Wash & Fold ($2.25/lb)";
+    } else if (normalized.includes("dry clean") || normalized.includes("suit") || normalized.includes("gown")) {
+      currentLeadState.data.service = "Delicate Dry Cleaning";
+    } else if (normalized.includes("express") || normalized.includes("same day")) {
+      currentLeadState.data.service = "Express Same-Day (Ready by 6 PM)";
+    } else {
+      currentLeadState.data.service = "Doorstep Laundry & Dry Cleaning";
+    }
+
+    currentLeadState.step = "awaiting_name";
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: `Awesome! I've selected **${currentLeadState.data.service}** for your order. To get your dispatch ticket ready, what is your **Full Name**?`,
+      timestamp: timeStr,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // G. DEFAULT GENERAL CONVERSATION
+  // ─────────────────────────────────────────────────────────────────────────────
   return {
     id: `msg-${Date.now()}`,
     sender: "sage",
-    text: `Got it! If you need to send this order to our team, click the button below to dispatch it on WhatsApp, or let me know if you want to update any details.`,
+    text: `Got it! I can help you with:\n1. **Booking a doorstep laundry pickup** (say *"Book pickup"*)\n2. **Tracking an existing order** (say *"Track order"*)\n3. **Checking pricing & turnaround** (say *"Pricing"*)\n\nWhat would you like to do?`,
     timestamp: timeStr,
-    ticket: {
-      id: currentLeadState.data.ticketId || "#OG-7721",
-      service: currentLeadState.data.service || "Standard Laundry",
-      timing: currentLeadState.data.timing || "Today",
-      items: "Order Ready",
-      customerName: currentLeadState.data.name,
-      customerPhone: currentLeadState.data.phone,
-      customerAddress: currentLeadState.data.address,
-      whatsappUrl: whatsappLink,
-      isFinalized: true,
-    },
   };
 }

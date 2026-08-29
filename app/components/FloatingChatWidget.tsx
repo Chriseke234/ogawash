@@ -337,11 +337,42 @@ export default function FloatingChatWidget() {
                         </div>
 
                         {/* Order Details List */}
+                        {/* Order Details List */}
                         <div className="space-y-1.5 text-xs">
+                          {/* Live Tracking Progress Bar if Tracking */}
+                          {msg.ticket.trackingStatus && (
+                            <div className="mb-2.5 p-2 rounded-xl bg-white border border-emerald-200 shadow-xs">
+                              <div className="flex items-center justify-between text-[11px] font-bold text-emerald-800 mb-1.5">
+                                <span>Status: {msg.ticket.trackingStatus}</span>
+                                <span className="text-[10px] text-emerald-600 font-utility">Stage 3 of 4</span>
+                              </div>
+                              {/* 4-Segment Progress Indicator */}
+                              <div className="grid grid-cols-4 gap-1 mb-1.5">
+                                <div className="h-1.5 rounded-full bg-emerald-500" />
+                                <div className="h-1.5 rounded-full bg-emerald-500" />
+                                <div className="h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <div className="h-1.5 rounded-full bg-slate-200" />
+                              </div>
+                              <div className="flex justify-between text-[9px] text-slate-500 font-utility">
+                                <span>Intake</span>
+                                <span>Wash</span>
+                                <span className="text-emerald-700 font-bold">Press</span>
+                                <span>Delivery</span>
+                              </div>
+                            </div>
+                          )}
+
                           <div>
                             <span className="text-slate-500 text-[11px]">Service: </span>
                             <span className="font-bold text-slate-900">{msg.ticket.service}</span>
                           </div>
+
+                          {msg.ticket.items && (
+                            <div>
+                              <span className="text-slate-500 text-[11px]">Garments: </span>
+                              <span className="font-semibold text-slate-900">{msg.ticket.items}</span>
+                            </div>
+                          )}
 
                           {msg.ticket.customerName && (
                             <div>
@@ -366,7 +397,7 @@ export default function FloatingChatWidget() {
 
                           {msg.ticket.timing && (
                             <div>
-                              <span className="text-slate-500 text-[11px]">Pickup: </span>
+                              <span className="text-slate-500 text-[11px]">Schedule: </span>
                               <span className="font-semibold text-emerald-800">{msg.ticket.timing}</span>
                             </div>
                           )}
