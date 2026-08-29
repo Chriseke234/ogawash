@@ -22,7 +22,7 @@ export const SAGE_INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "init-1",
     sender: "sage",
-    text: "Hello! I'm Sage, your Ogawash concierge. Whether you need a doorstep pickup, dry cleaning for delicate garments, or rush same-day service, I can arrange everything right here.",
+    text: "Hello! I'm Sage, your Ogawash laundry assistant. Whether you need a doorstep pickup, dry cleaning for suits/delicate clothes, or rush same-day service, I can book your order right here.",
     timestamp: "Just now",
   },
 ];
@@ -50,7 +50,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "Yes, I am Sage, Ogawash's AI concierge! I handle conversational intake, tag your care requirements, and schedule your pickups in real-time. Once your items are collected, our master human dry cleaners and garment specialists handle the physical washing and pressing.",
+      text: "Yes, I am Sage, Ogawash's automated AI laundry assistant! I handle your bookings, note down any special wash instructions, and schedule pickups in real-time. Once collected, our professional human cleaners handle the physical washing and pressing.",
       timestamp: timeStr,
     };
   }
@@ -67,13 +67,13 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `I can arrange a courier to your location today. I've drafted a pickup ticket for your review. What address and estimated bag count shall I log?`,
+      text: `I can arrange a rider to pick up your laundry today. I've created an order ticket below. What address and how many bags should I put down?`,
       timestamp: timeStr,
       ticket: {
         id: `#OG-${randomTicketNum}`,
-        service: "Concierge Pickup & Delivery",
+        service: "Doorstep Pickup & Delivery",
         timing: "Today, Window 5:00 PM – 7:00 PM",
-        items: "Awaiting garment count & address",
+        items: "Awaiting bag count & address",
       },
     };
   }
@@ -89,7 +89,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "Our standard Wash & Fold is returned crisp within 24 hours ($2.25/lb). Dry cleaning takes 48 hours for delicate garment treatments. For emergencies, our Express Same-Day service gets your items back by 6:00 PM when submitted before 10:00 AM.",
+      text: "Standard Wash & Fold is returned clean and folded within 24 hours ($2.25/lb). Dry cleaning takes 48 hours for special garment care. For emergencies, our Express Same-Day gets your clothes back by 6:00 PM when submitted before 10:00 AM.",
       timestamp: timeStr,
     };
   }
@@ -105,7 +105,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "Express Same-Day is prioritized directly into our express thermal washers and steam presses. Orders placed by 10:00 AM are ready for delivery or collection by 6:00 PM the same day.",
+      text: "Express Same-Day is prioritized directly for rapid washing and pressing. Orders placed before 10:00 AM are ready for delivery or pickup by 6:00 PM the same day.",
       timestamp: timeStr,
     };
   }
@@ -122,16 +122,16 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "We specialize in delicate fabrics. Every silk blouse, cashmere knit, and tailored suit is inspected, tested for colorfastness, and treated with eco-friendly solvents and custom moisture-controlled steam pressing.",
+      text: "We specialize in delicate fabrics like silks, suits, woolens, and heavy bedding. Everything is inspected and washed with fabric-safe solutions and hand steam pressing.",
       timestamp: timeStr,
     };
   }
 
-  // Default warm concierge response
+  // Default warm assistant response
   return {
     id: `msg-${Date.now()}`,
     sender: "sage",
-    text: `Got it! I've noted: "${userMessage}". Would you like me to create a service ticket for pickup, or do you have any specific fabric care requirements?`,
+    text: `Got it! I've noted: "${userMessage}". Would you like me to book a doorstep pickup for you, or do you have any specific wash instructions?`,
     timestamp: timeStr,
   };
 }

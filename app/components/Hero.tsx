@@ -102,9 +102,10 @@ export default function Hero() {
 
   return (
     <section
+      id="hero"
       ref={heroRef}
       aria-label="Ogawash Hero"
-      className="relative w-full min-h-screen flex flex-col items-center justify-start pt-20 pb-24 px-4 sm:px-6 lg:px-8 bg-ink overflow-hidden"
+      className="relative w-full min-h-screen flex flex-col items-center justify-start pt-28 sm:pt-32 pb-24 px-4 sm:px-6 lg:px-8 bg-ink overflow-hidden"
     >
       {/* Background Subtle Gradient & Grid Texture */}
       <div
@@ -157,7 +158,7 @@ export default function Hero() {
             variants={textItemVariants}
             className="font-body text-base sm:text-lg text-muted-text max-w-[480px] leading-relaxed mb-8 text-balance"
           >
-            Meet Sage, your AI concierge who manages intake, fabric sorting, and seamless door-to-door delivery with master-cleaner precision.
+            Meet Sage, your AI laundry assistant who takes your order, tracks fabric care, and arranges seamless door-to-door delivery with master cleaners.
           </motion.p>
 
           {/* CTA Button */}
@@ -165,9 +166,9 @@ export default function Hero() {
             <a
               href="#talk-to-sage"
               className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-sage text-ink font-body font-semibold text-sm sm:text-base tracking-wide shadow-sage-glow hover:bg-sage-dark hover:text-ivory transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-ink transform hover:-translate-y-0.5 active:translate-y-0"
-              aria-label="Talk to Sage - AI Laundry Concierge"
+              aria-label="Book on Chat with Sage - AI Laundry Assistant"
             >
-              <span>Talk to Sage</span>
+              <span>Book on Chat</span>
               <svg
                 className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
                 viewBox="0 0 16 16"

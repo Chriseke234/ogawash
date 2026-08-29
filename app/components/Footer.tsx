@@ -35,11 +35,11 @@ export default function Footer() {
               OGAWASH
             </span>
             <p className="text-xs text-muted-text leading-relaxed max-w-xs mb-4">
-              Full-service laundry &amp; dry cleaning concierge. Every order, tagged, sorted, and cared for.
+              Full-service laundry &amp; dry cleaning. Every order, tagged, sorted, and cared for.
             </p>
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-surface border border-border-line text-[11px] font-utility text-sage">
               <span className="w-1.5 h-1.5 rounded-full bg-sage" aria-hidden="true" />
-              <span>Concierge Active</span>
+              <span>Instant Booking Active</span>
             </div>
           </div>
 

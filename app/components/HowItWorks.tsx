@@ -80,6 +80,7 @@ export default function HowItWorks() {
 
   return (
     <section
+      id="how-it-works"
       aria-label="How Ogawash Works"
       className="relative w-full py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-ink border-t border-border-line/60 overflow-hidden"
     >

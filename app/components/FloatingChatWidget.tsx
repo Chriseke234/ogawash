@@ -203,10 +203,10 @@ export default function FloatingChatWidget() {
                   <div className="flex items-center gap-1.5">
                     <h2 className="text-sm font-semibold text-ivory leading-tight">Sage</h2>
                     <span className="px-1.5 py-0.2 rounded bg-sage-muted text-[10px] font-utility text-sage uppercase font-medium">
-                      AI Concierge
+                      AI Assistant
                     </span>
                   </div>
-                  <p className="text-[11px] text-muted-text">Replies instantly • Master Cleaners on call</p>
+                  <p className="text-[11px] text-muted-text">Replies instantly • Book pickup &amp; dry cleaning</p>
                 </div>
               </div>
 
@@ -348,7 +348,7 @@ export default function FloatingChatWidget() {
                   <div className="flex items-center gap-1.5 mb-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-sage" />
                     <span className="font-utility text-[10px] font-semibold text-sage uppercase tracking-wider">
-                      Sage Concierge
+                      Sage Assistant
                     </span>
                   </div>
                   <button
@@ -363,7 +363,7 @@ export default function FloatingChatWidget() {
                 </div>
 
                 <p className="text-xs text-ivory leading-relaxed font-body">
-                  Hey there — I&apos;m Sage. Need a quick doorstep pickup or garment care advice?
+                  Hey there — I&apos;m Sage. Need a quick doorstep laundry pickup or price check?
                 </p>
                 <div className="mt-2 text-[10px] font-utility text-sage group-hover:underline flex items-center gap-1">
                   <span>Chat now</span>

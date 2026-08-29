@@ -68,6 +68,7 @@ export default function Testimonials() {
 
   return (
     <section
+      id="testimonials"
       aria-label="Customer Testimonials"
       className="relative w-full py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-ink border-t border-border-line/60 overflow-hidden"
     >
