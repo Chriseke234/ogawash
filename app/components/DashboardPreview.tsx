@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 interface Ticket {
   id: string;
@@ -114,7 +114,7 @@ export default function DashboardPreview() {
   const shouldReduceMotion = useReducedMotion();
 
   // Container variants for staggered lane entrance
-  const boardVariants = {
+  const boardVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -126,7 +126,7 @@ export default function DashboardPreview() {
   };
 
   // Lane column variants
-  const laneVariants = {
+  const laneVariants: Variants = {
     hidden: {
       opacity: 0,
       y: shouldReduceMotion ? 0 : 18,
@@ -136,14 +136,14 @@ export default function DashboardPreview() {
       y: 0,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.55,
-        ease: [0.22, 1, 0.36, 1],
+        ease: "easeOut",
         staggerChildren: shouldReduceMotion ? 0 : 0.08,
       },
     },
   };
 
   // Ticket card variants
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: {
       opacity: 0,
       y: shouldReduceMotion ? 0 : 12,
@@ -155,7 +155,7 @@ export default function DashboardPreview() {
       scale: 1,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.45,
-        ease: [0.16, 1, 0.3, 1],
+        ease: "easeOut",
       },
     },
   };

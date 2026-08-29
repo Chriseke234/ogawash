@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 /**
  * Ogawash Hero Component
@@ -12,7 +12,7 @@ export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
   // Subtle entrance animation variants for text elements
-  const textContainerVariants = {
+  const textContainerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -23,20 +23,20 @@ export default function Hero() {
     },
   };
 
-  const textItemVariants = {
+  const textItemVariants: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.6,
-        ease: [0.22, 1, 0.36, 1],
+        ease: "easeOut",
       },
     },
   };
 
   // Stage card reveal variants for scroll/in-view trigger
-  const stageContainerVariants = {
+  const stageContainerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -47,7 +47,7 @@ export default function Hero() {
     },
   };
 
-  const stageItemVariants = {
+  const stageItemVariants: Variants = {
     hidden: {
       opacity: 0,
       y: shouldReduceMotion ? 0 : 20,
@@ -59,13 +59,13 @@ export default function Hero() {
       scale: 1,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.65,
-        ease: [0.16, 1, 0.3, 1],
+        ease: "easeOut",
       },
     },
   };
 
   // Mascot ambient idle animation variants
-  const mascotIdleVariants = {
+  const mascotIdleVariants: Variants = {
     idle: {
       y: shouldReduceMotion ? 0 : [0, -6, 0],
       rotate: shouldReduceMotion ? 0 : [0, 1.2, -1.2, 0],
@@ -77,7 +77,7 @@ export default function Hero() {
     },
   };
 
-  const mascotBlinkVariants = {
+  const mascotBlinkVariants: Variants = {
     idle: {
       scaleY: shouldReduceMotion ? 1 : [1, 1, 0.1, 1, 1, 1],
       transition: {
@@ -88,7 +88,7 @@ export default function Hero() {
     },
   };
 
-  const badgePulseVariants = {
+  const badgePulseVariants: Variants = {
     idle: {
       scale: shouldReduceMotion ? 1 : [1, 1.06, 1],
       opacity: shouldReduceMotion ? 1 : [0.9, 1, 0.9],

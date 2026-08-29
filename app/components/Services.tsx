@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 interface ServiceItem {
   number: string;
@@ -45,7 +45,7 @@ export default function Services() {
   const shouldReduceMotion = useReducedMotion();
 
   // Container variants for staggered entrance
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -57,7 +57,7 @@ export default function Services() {
   };
 
   // Card slide/fade variants matching HowItWorks pattern
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: {
       opacity: 0,
       y: shouldReduceMotion ? 0 : 18,
@@ -69,7 +69,7 @@ export default function Services() {
       scale: 1,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.55,
-        ease: [0.22, 1, 0.36, 1],
+        ease: "easeOut",
       },
     },
   };

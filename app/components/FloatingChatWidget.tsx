@@ -177,7 +177,7 @@ export default function FloatingChatWidget() {
             initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[380px] sm:h-[520px] max-h-[92vh] flex flex-col rounded-2xl bg-surface border border-border-line shadow-2xl overflow-hidden z-50"
             role="dialog"
             aria-modal="true"
@@ -331,7 +331,7 @@ export default function FloatingChatWidget() {
                 initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, x: 10 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, x: 10 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 onClick={handleOpenChat}
                 className="absolute right-16 sm:right-18 bottom-1 max-w-[240px] sm:max-w-[260px] p-3 rounded-2xl bg-surface border border-border-line shadow-2xl cursor-pointer hover:border-sage/50 transition-colors group"
                 role="region"

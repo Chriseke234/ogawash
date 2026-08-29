@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 interface StepItem {
   number: string;
@@ -39,7 +39,7 @@ export default function HowItWorks() {
   const shouldReduceMotion = useReducedMotion();
 
   // Container variants for staggered entrance
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -51,7 +51,7 @@ export default function HowItWorks() {
   };
 
   // Step item slide/fade variants
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: {
       opacity: 0,
       y: shouldReduceMotion ? 0 : 20,
@@ -61,19 +61,19 @@ export default function HowItWorks() {
       y: 0,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.6,
-        ease: [0.22, 1, 0.36, 1],
+        ease: "easeOut",
       },
     },
   };
 
   // Border draw animation variants (height from 0% to 100%)
-  const borderVariants = {
+  const borderVariants: Variants = {
     hidden: { scaleY: shouldReduceMotion ? 1 : 0 },
     visible: {
       scaleY: 1,
       transition: {
         duration: shouldReduceMotion ? 0.01 : 0.7,
-        ease: [0.22, 1, 0.36, 1],
+        ease: "easeOut",
       },
     },
   };
