@@ -20,9 +20,11 @@ type WidgetState = "closed-idle" | "closed-with-greeting" | "open";
 export function SageMascotIllustration({
   className = "w-8 h-8",
   isSpeaking = false,
+  isListening = false,
 }: {
   className?: string;
   isSpeaking?: boolean;
+  isListening?: boolean;
 }) {
   return (
     <div className="relative inline-flex items-center justify-center">
@@ -48,6 +50,8 @@ export function SageMascotIllustration({
         {/* Warm Smile or Speaking Mouth */}
         {isSpeaking ? (
           <ellipse cx="50" cy="62" rx="4.5" ry="3" fill="#047857" className="animate-pulse" />
+        ) : isListening ? (
+          <ellipse cx="50" cy="62" rx="3" ry="3" fill="#E11D48" className="animate-bounce" />
         ) : (
           <path d="M44 62C46.5 65 53.5 65 56 62" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" />
         )}
@@ -61,13 +65,18 @@ export function SageMascotIllustration({
         <circle cx="50" cy="88" r="2" fill="#FBBF24" />
       </svg>
 
-      {/* Subtle speaking waves if voice is active */}
-      {isSpeaking && (
-        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+      {/* Dynamic Status Ring indicator */}
+      {isSpeaking ? (
+        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 ring-2 ring-white" />
         </span>
-      )}
+      ) : isListening ? (
+        <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-500 ring-2 ring-white" />
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -97,20 +106,41 @@ function MicrophoneIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 /**
- * Speaker Wave (Voice ON) SVG Icon
+ * Equalizer / Soundwave animated bars for Audio toggle
  */
-function SpeakerWaveIcon({ className = "w-4 h-4" }: { className?: string }) {
+function SoundwaveEqualizer({ isPlaying = false }: { isPlaying?: boolean }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-    </svg>
+    <div className="flex items-center gap-[2px] h-3.5 px-0.5">
+      <span
+        className={`w-[2.5px] rounded-full bg-emerald-200 transition-all ${
+          isPlaying ? "h-3.5 animate-pulse" : "h-1.5"
+        }`}
+        style={{ animationDuration: "0.6s" }}
+      />
+      <span
+        className={`w-[2.5px] rounded-full bg-emerald-100 transition-all ${
+          isPlaying ? "h-2.5 animate-pulse" : "h-2.5"
+        }`}
+        style={{ animationDuration: "0.4s", animationDelay: "0.15s" }}
+      />
+      <span
+        className={`w-[2.5px] rounded-full bg-white transition-all ${
+          isPlaying ? "h-4 animate-pulse" : "h-3"
+        }`}
+        style={{ animationDuration: "0.8s", animationDelay: "0.3s" }}
+      />
+      <span
+        className={`w-[2.5px] rounded-full bg-emerald-200 transition-all ${
+          isPlaying ? "h-2 animate-pulse" : "h-1.5"
+        }`}
+        style={{ animationDuration: "0.5s", animationDelay: "0.2s" }}
+      />
+    </div>
   );
 }
 
 /**
- * Speaker Mute (Voice OFF) SVG Icon
+ * Audio Muted SVG Icon
  */
 function SpeakerMuteIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -123,8 +153,69 @@ function SpeakerMuteIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 /**
+ * Multi-bar Audio Waveform Visualizer
+ */
+function LiveAudioWaveformBar({
+  mode,
+  onStop,
+}: {
+  mode: "listening" | "speaking";
+  onStop: () => void;
+}) {
+  const isListening = mode === "listening";
+
+  return (
+    <div
+      className={`px-3.5 py-2 border-t flex items-center justify-between transition-colors ${
+        isListening
+          ? "bg-rose-50/90 border-rose-200 text-rose-800"
+          : "bg-emerald-50/90 border-emerald-200 text-emerald-800"
+      }`}
+    >
+      <div className="flex items-center gap-2.5">
+        <span
+          className={`w-2.5 h-2.5 rounded-full ${
+            isListening ? "bg-rose-500 animate-ping" : "bg-emerald-500 animate-pulse"
+          }`}
+        />
+        <div className="flex items-center gap-1 h-4">
+          {[40, 70, 100, 60, 90, 50, 80].map((height, i) => (
+            <span
+              key={i}
+              className={`w-1 rounded-full transition-all duration-200 ${
+                isListening ? "bg-rose-500" : "bg-emerald-600"
+              }`}
+              style={{
+                height: `${height}%`,
+                animation: "pulse 0.6s infinite ease-in-out alternate",
+                animationDelay: `${i * 0.08}s`,
+              }}
+            />
+          ))}
+        </div>
+        <span className="text-xs font-semibold">
+          {isListening ? "Listening to your voice..." : "Sage is speaking response..."}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onStop}
+        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+          isListening
+            ? "border-rose-300 bg-white text-rose-700 hover:bg-rose-100"
+            : "border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-100"
+        }`}
+      >
+        Stop
+      </button>
+    </div>
+  );
+}
+
+/**
  * FloatingChatWidget Component
- * Persistent floating AI laundry assistant with natural messaging, voice dictation, speech output, and dual WhatsApp dispatch.
+ * Redesigned luxury glassmorphic AI laundry concierge with real-time voice, natural messaging, and dual WhatsApp dispatch.
  */
 export default function FloatingChatWidget() {
   const [widgetState, setWidgetState] = useState<WidgetState>("closed-idle");
@@ -200,14 +291,13 @@ export default function FloatingChatWidget() {
         return;
       }
 
-      // Stop any ongoing speech
       window.speechSynthesis.cancel();
 
-      // Clean text for audio synthesis (remove bullet characters and ticket markers)
+      // Clean text for audio readout
       const cleanVoiceText = text
         .replace(/•/g, "")
         .replace(/\n+/g, " ")
-        .replace(/#OG-\d+/g, "ticket")
+        .replace(/#OG-\d+/g, "order ticket")
         .replace(/\+234/g, "plus 2 3 4")
         .trim();
 
@@ -241,7 +331,6 @@ export default function FloatingChatWidget() {
     [isVoiceEnabled]
   );
 
-  // Stop speaking helper
   const stopSpeaking = () => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel();
@@ -249,7 +338,6 @@ export default function FloatingChatWidget() {
     }
   };
 
-  // Toggle microphone dictation
   const handleToggleListening = () => {
     stopSpeaking();
     if (!recognitionRef.current) return;
@@ -440,49 +528,57 @@ export default function FloatingChatWidget() {
   return (
     <div
       ref={widgetContainerRef}
-      className="fixed z-50 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans"
+      className="fixed z-50 bottom-4 right-4 sm:bottom-6 sm:right-6 font-sans"
       aria-label="Sage AI Laundry Assistant Widget"
     >
       {/* ─────────────────────────────────────────────────────────────
-          STATE 3: OPEN CHAT PANEL
+          STATE 3: REDESIGNED OPEN CHAT PANEL (Glass-card / Sheet)
          ───────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {widgetState === "open" && (
           <motion.div
             key="chat-panel"
-            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[420px] sm:h-[590px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92, y: 24 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-2 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[420px] sm:h-[610px] max-h-[94vh] flex flex-col rounded-3xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl overflow-hidden z-50 ring-1 ring-black/5"
             role="dialog"
             aria-modal="true"
-            aria-label="Chat with Sage"
+            aria-label="Chat with Sage AI Concierge"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-emerald-600 text-white shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="relative w-9 h-9 rounded-full bg-white flex items-center justify-center p-0.5 shadow-inner">
-                  <SageMascotIllustration className="w-full h-full" isSpeaking={isSpeaking} />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-600" />
+            {/* Luxury Glassmorphic Header */}
+            <div className="relative flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-md border-b border-emerald-700/50">
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-2xl bg-white flex items-center justify-center p-1 shadow-sm ring-1 ring-white/20">
+                  <SageMascotIllustration
+                    className="w-full h-full"
+                    isSpeaking={isSpeaking}
+                    isListening={isListening}
+                  />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <h2 className="text-sm font-bold text-white leading-tight">Sage</h2>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-700/80 text-[10px] font-utility text-emerald-100 uppercase font-semibold">
-                      Voice & WhatsApp Ready
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-sm font-bold text-white tracking-tight">Sage</h2>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-700/70 border border-emerald-500/40 text-[10px] font-utility font-semibold text-emerald-100 uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                      Live Concierge
                     </span>
                   </div>
-                  <p className="text-[11px] text-emerald-100/90">
-                    {isSpeaking ? "Speaking response..." : "Instant order booking & dispatch"}
+                  <p className="text-[11px] text-emerald-100/90 font-medium">
+                    {isSpeaking
+                      ? "Speaking aloud..."
+                      : isListening
+                      ? "Listening to your voice..."
+                      : "Instant Doorstep Booking • Dual WhatsApp"}
                   </p>
                 </div>
               </div>
 
-              {/* Header Action Buttons */}
-              <div className="flex items-center gap-1">
-                {/* Voice Readout Toggle */}
+              {/* Header Action Controls */}
+              <div className="flex items-center gap-1.5">
+                {/* Voice Readout Toggle with Equalizer */}
                 <button
                   type="button"
                   onClick={() => {
@@ -491,269 +587,325 @@ export default function FloatingChatWidget() {
                     }
                     setIsVoiceEnabled(!isVoiceEnabled);
                   }}
-                  className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                  className={`px-2 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer ${
                     isVoiceEnabled
-                      ? "bg-emerald-700 text-white hover:bg-emerald-800"
-                      : "text-emerald-200 hover:text-white hover:bg-emerald-700"
+                      ? "bg-emerald-700/90 text-white border border-emerald-500/40 hover:bg-emerald-600 shadow-xs"
+                      : "bg-emerald-950/40 text-emerald-300 border border-emerald-800/40 hover:bg-emerald-800/50 hover:text-white"
                   }`}
-                  title={isVoiceEnabled ? "Voice output enabled (Click to mute)" : "Voice output muted (Click to enable)"}
+                  title={isVoiceEnabled ? "Voice readout active (Click to mute)" : "Voice readout muted (Click to unmute)"}
                   aria-label={isVoiceEnabled ? "Mute voice assistant" : "Unmute voice assistant"}
                 >
-                  {isVoiceEnabled ? <SpeakerWaveIcon className="w-4 h-4" /> : <SpeakerMuteIcon className="w-4 h-4" />}
+                  {isVoiceEnabled ? (
+                    <>
+                      <SoundwaveEqualizer isPlaying={isSpeaking} />
+                      <span className="text-[10px] font-utility uppercase">Voice ON</span>
+                    </>
+                  ) : (
+                    <>
+                      <SpeakerMuteIcon className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-utility uppercase">Muted</span>
+                    </>
+                  )}
                 </button>
 
-                {/* New Order Button */}
+                {/* New Order Reset Button */}
                 <button
+                  type="button"
                   onClick={handleStartNewOrder}
-                  className="px-2 py-1 rounded-lg text-[10px] font-utility font-semibold bg-emerald-700/80 text-emerald-100 hover:text-white hover:bg-emerald-800 transition-colors"
+                  className="p-1.5 rounded-xl text-emerald-200 hover:text-white hover:bg-emerald-700/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                   title="Start a new order"
+                  aria-label="Start a new order"
                 >
-                  New Order
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                    <path d="M21 3v5h-5" />
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                    <path d="M8 16H3v5" />
+                  </svg>
                 </button>
 
                 {/* Close Button */}
                 <button
+                  type="button"
                   onClick={handleCloseChat}
-                  className="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="p-1.5 rounded-xl text-emerald-200 hover:text-white hover:bg-emerald-700/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
                   aria-label="Close chat"
                 >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            {/* Message Thread */}
+            {/* Conversation Stream */}
             <div
-              className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs sm:text-[13px] bg-slate-50/70"
+              className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs sm:text-[13px] bg-gradient-to-b from-slate-50/90 via-white to-slate-50/70"
               aria-live="polite"
             >
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
-                >
+              {messages.map((msg) => {
+                const isUser = msg.sender === "user";
+
+                return (
                   <div
-                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs ${
-                      msg.sender === "user"
-                        ? "bg-emerald-600 text-white font-medium rounded-tr-sm"
-                        : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
-                    }`}
+                    key={msg.id}
+                    className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                   >
-                    <p className="whitespace-pre-line">{msg.text}</p>
+                    <div
+                      className={`max-w-[88%] rounded-2xl px-4 py-3 leading-relaxed shadow-xs transition-all ${
+                        isUser
+                          ? "bg-gradient-to-br from-emerald-600 to-teal-700 text-white font-medium rounded-tr-xs shadow-emerald-700/10"
+                          : "bg-white border border-slate-200/90 text-slate-800 rounded-tl-xs shadow-slate-200/40"
+                      }`}
+                    >
+                      <p className="whitespace-pre-line">{msg.text}</p>
 
-                    {/* ─────────────────────────────────────────────────────────────
-                        FINAL VERIFIED ORDER TICKET WITH DUAL WHATSAPP ACTIONS
-                       ───────────────────────────────────────────────────────────── */}
-                    {msg.ticket && (
-                      <div className="mt-3 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-left shadow-sm">
-                        {/* Ticket Header */}
-                        <div className="flex items-center justify-between text-[11px] font-utility font-bold text-emerald-800 pb-2 mb-2 border-b border-emerald-200">
-                          <span className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                            {msg.ticket.id}
-                          </span>
-                          <span className="px-2 py-0.5 bg-emerald-200/80 rounded-full text-emerald-900 text-[10px]">
-                            {msg.ticket.isFinalized ? "DISPATCH READY" : "IN PROGRESS"}
-                          </span>
-                        </div>
-
-                        {/* Order Details List */}
-                        <div className="space-y-1.5 text-xs">
-                          {/* Live Tracking Progress Bar if Tracking */}
-                          {msg.ticket.trackingStatus && (
-                            <div className="mb-2.5 p-2 rounded-xl bg-white border border-emerald-200 shadow-xs">
-                              <div className="flex items-center justify-between text-[11px] font-bold text-emerald-800 mb-1.5">
-                                <span>Status: {msg.ticket.trackingStatus}</span>
-                                <span className="text-[10px] text-emerald-600 font-utility">Stage 3 of 4</span>
-                              </div>
-                              {/* 4-Segment Progress Indicator */}
-                              <div className="grid grid-cols-4 gap-1 mb-1.5">
-                                <div className="h-1.5 rounded-full bg-emerald-500" />
-                                <div className="h-1.5 rounded-full bg-emerald-500" />
-                                <div className="h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                <div className="h-1.5 rounded-full bg-slate-200" />
-                              </div>
-                              <div className="flex justify-between text-[9px] text-slate-500 font-utility">
-                                <span>Intake</span>
-                                <span>Wash</span>
-                                <span className="text-emerald-700 font-bold">Press</span>
-                                <span>Delivery</span>
-                              </div>
-                            </div>
-                          )}
-
-                          <div>
-                            <span className="text-slate-500 text-[11px]">Service: </span>
-                            <span className="font-bold text-slate-900">{msg.ticket.service}</span>
+                      {/* ─────────────────────────────────────────────────────────────
+                          ELEVATED ORDER TICKET CARD WITH DUAL WHATSAPP ACTIONS
+                         ───────────────────────────────────────────────────────────── */}
+                      {msg.ticket && (
+                        <div className="mt-3.5 p-4 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white border border-emerald-200 text-left shadow-xs">
+                          {/* Ticket Header Ribbon */}
+                          <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-emerald-200/80">
+                            <span className="flex items-center gap-1.5 font-utility text-[11px] font-bold text-emerald-900 tracking-wider">
+                              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                              {msg.ticket.id}
+                            </span>
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-utility text-[10px] font-bold tracking-wider uppercase shadow-2xs">
+                              {msg.ticket.isFinalized ? "Dispatch Ready" : "In Progress"}
+                            </span>
                           </div>
 
-                          {msg.ticket.items && (
-                            <div>
-                              <span className="text-slate-500 text-[11px]">Garments: </span>
-                              <span className="font-semibold text-slate-900">{msg.ticket.items}</span>
+                          {/* Order Details List */}
+                          <div className="space-y-2 text-xs">
+                            {/* Live Tracking 4-Segment Progress Bar */}
+                            {msg.ticket.trackingStatus && (
+                              <div className="mb-3 p-2.5 rounded-xl bg-white border border-emerald-200 shadow-2xs">
+                                <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 mb-1.5">
+                                  <span>Status: {msg.ticket.trackingStatus}</span>
+                                  <span className="text-[10px] text-emerald-600 font-utility">Stage 3 of 4</span>
+                                </div>
+                                <div className="grid grid-cols-4 gap-1.5 mb-1.5">
+                                  <div className="h-1.5 rounded-full bg-emerald-500" />
+                                  <div className="h-1.5 rounded-full bg-emerald-500" />
+                                  <div className="h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                  <div className="h-1.5 rounded-full bg-slate-200" />
+                                </div>
+                                <div className="flex justify-between text-[9px] text-slate-500 font-utility font-semibold">
+                                  <span>Intake</span>
+                                  <span>Wash</span>
+                                  <span className="text-emerald-700 font-bold">Press</span>
+                                  <span>Delivery</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Details Row: Service */}
+                            <div className="flex items-start gap-2">
+                              <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                <svg className="w-2.5 h-2.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 text-[11px]">Service: </span>
+                                <span className="font-bold text-slate-900">{msg.ticket.service}</span>
+                              </div>
                             </div>
-                          )}
 
-                          {msg.ticket.customerName && (
-                            <div>
-                              <span className="text-slate-500 text-[11px]">Customer: </span>
-                              <span className="font-semibold text-slate-900">{msg.ticket.customerName}</span>
-                            </div>
-                          )}
+                            {/* Customer Name */}
+                            {msg.ticket.customerName && (
+                              <div className="flex items-start gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <span className="text-slate-500 text-[11px]">Customer: </span>
+                                  <span className="font-semibold text-slate-900">{msg.ticket.customerName}</span>
+                                </div>
+                              </div>
+                            )}
 
-                          {msg.ticket.customerPhone && (
-                            <div>
-                              <span className="text-slate-500 text-[11px]">Phone: </span>
-                              <span className="font-semibold text-slate-900">{msg.ticket.customerPhone}</span>
-                            </div>
-                          )}
+                            {/* Phone */}
+                            {msg.ticket.customerPhone && (
+                              <div className="flex items-start gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <span className="text-slate-500 text-[11px]">Phone: </span>
+                                  <span className="font-semibold text-slate-900">{msg.ticket.customerPhone}</span>
+                                </div>
+                              </div>
+                            )}
 
-                          {msg.ticket.customerAddress && (
-                            <div>
-                              <span className="text-slate-500 text-[11px]">Address: </span>
-                              <span className="font-semibold text-slate-900">{msg.ticket.customerAddress}</span>
-                            </div>
-                          )}
+                            {/* Address */}
+                            {msg.ticket.customerAddress && (
+                              <div className="flex items-start gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <span className="text-slate-500 text-[11px]">Address: </span>
+                                  <span className="font-semibold text-slate-900">{msg.ticket.customerAddress}</span>
+                                </div>
+                              </div>
+                            )}
 
-                          {msg.ticket.timing && (
-                            <div>
-                              <span className="text-slate-500 text-[11px]">Schedule: </span>
-                              <span className="font-semibold text-emerald-800">{msg.ticket.timing}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Dual WhatsApp Dispatch Action Buttons */}
-                        {(msg.ticket.ownerWhatsappUrl || msg.ticket.whatsappUrl || msg.ticket.customerWhatsappUrl) && (
-                          <div className="mt-3 pt-2.5 border-t border-emerald-200 flex flex-col gap-2">
-                            {/* Button 1: Send to Business Owner */}
-                            <a
-                              href={msg.ticket.ownerWhatsappUrl || msg.ticket.whatsappUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99]"
-                            >
-                              <WhatsAppIcon className="w-4 h-4" />
-                              <span>Send to Ogawash Dispatch</span>
-                            </a>
-                            <p className="text-[10px] text-center text-emerald-800/80 font-utility -mt-1">
-                              Direct to Dispatch Desk ({OWNER_WHATSAPP_NUMBER})
-                            </p>
-
-                            {/* Button 2: Send Copy to Customer's WhatsApp */}
-                            {msg.ticket.customerWhatsappUrl && (
-                              <div className="pt-1">
-                                <a
-                                  href={msg.ticket.customerWhatsappUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="w-full py-2 px-3 rounded-xl bg-white border border-emerald-400 hover:bg-emerald-50 text-emerald-800 font-semibold text-xs flex items-center justify-center gap-2 shadow-2xs transition-all duration-200"
-                                >
-                                  <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span>Send Copy to My WhatsApp</span>
-                                </a>
-                                {msg.ticket.customerPhone && (
-                                  <p className="text-[9px] text-center text-slate-500 font-utility mt-0.5">
-                                    Customer copy for: {msg.ticket.customerPhone}
-                                  </p>
-                                )}
+                            {/* Schedule Window */}
+                            {msg.ticket.timing && (
+                              <div className="flex items-start gap-2">
+                                <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                                  <svg className="w-2.5 h-2.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <span className="text-slate-500 text-[11px]">Schedule: </span>
+                                  <span className="font-bold text-emerald-800">{msg.ticket.timing}</span>
+                                </div>
                               </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-slate-400 mt-1 px-1 font-utility">
-                    {msg.timestamp}
-                  </span>
-                </div>
-              ))}
 
+                          {/* Dual WhatsApp Action Buttons */}
+                          {(msg.ticket.ownerWhatsappUrl || msg.ticket.whatsappUrl || msg.ticket.customerWhatsappUrl) && (
+                            <div className="mt-3.5 pt-3 border-t border-emerald-200/80 flex flex-col gap-2">
+                              {/* Primary Button: Send to Owner / Ogawash Dispatch */}
+                              <a
+                                href={msg.ticket.ownerWhatsappUrl || msg.ticket.whatsappUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99]"
+                              >
+                                <WhatsAppIcon className="w-4 h-4" />
+                                <span>Send to Ogawash Dispatch</span>
+                              </a>
+                              <p className="text-[10px] text-center text-emerald-800/80 font-utility -mt-1">
+                                Direct to Dispatch Desk ({OWNER_WHATSAPP_NUMBER})
+                              </p>
+
+                              {/* Secondary Button: Send Copy to Customer's WhatsApp */}
+                              {msg.ticket.customerWhatsappUrl && (
+                                <div className="pt-0.5">
+                                  <a
+                                    href={msg.ticket.customerWhatsappUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full py-2 px-3 rounded-xl bg-white border border-emerald-400 hover:bg-emerald-50 text-emerald-900 font-semibold text-xs flex items-center justify-center gap-2 shadow-2xs transition-all duration-200"
+                                  >
+                                    <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span>Send Copy to My WhatsApp</span>
+                                  </a>
+                                  {msg.ticket.customerPhone && (
+                                    <p className="text-[9px] text-center text-slate-500 font-utility mt-0.5">
+                                      Customer receipt copy for: {msg.ticket.customerPhone}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <span className="text-[10px] text-slate-400 mt-1 px-1 font-utility">
+                      {msg.timestamp}
+                    </span>
+                  </div>
+                );
+              })}
+
+              {/* Typing Dot Bounces */}
               {isTyping && (
-                <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 w-fit shadow-xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white border border-slate-200 w-fit shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               )}
 
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Action Service Chips */}
-            <div className="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {/* Quick Action Suggestion Chips Bar */}
+            <div className="px-3.5 py-2 bg-slate-50/80 border-t border-slate-200/70 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {SAGE_QUICK_PROMPTS.map((prompt, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => handleSendMessage(prompt)}
-                  className="whitespace-nowrap px-3 py-1 rounded-full bg-slate-100 text-[11px] font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-transparent transition-colors cursor-pointer"
+                  className="whitespace-nowrap px-3 py-1 rounded-full bg-white text-[11px] font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200/80 shadow-2xs transition-all cursor-pointer shrink-0"
                 >
                   {prompt}
                 </button>
               ))}
             </div>
 
-            {/* Listening Indicator Bar if Microphone is active */}
-            {isListening && (
-              <div className="px-3 py-1.5 bg-rose-50 border-t border-rose-200 flex items-center justify-between text-xs text-rose-700 font-medium animate-pulse">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                  <span>Listening... Speak your message</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleToggleListening}
-                  className="text-[10px] underline hover:text-rose-900 cursor-pointer"
-                >
-                  Stop Recording
-                </button>
-              </div>
-            )}
+            {/* Live Audio Waveform Visualizer Bar */}
+            {isListening ? (
+              <LiveAudioWaveformBar mode="listening" onStop={handleToggleListening} />
+            ) : isSpeaking ? (
+              <LiveAudioWaveformBar mode="speaking" onStop={stopSpeaking} />
+            ) : null}
 
-            {/* Input Row with Voice Microphone and Send */}
+            {/* Integrated Floating Input Dock */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              className="p-3 bg-white border-t border-slate-100 flex items-center gap-2"
+              className="p-3 bg-white border-t border-slate-200/80 flex items-center gap-2"
             >
-              <input
-                ref={chatInputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={isListening ? "Listening to your voice..." : "Type or click mic to speak..."}
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-                disabled={isTyping}
-              />
-
-              {/* Microphone Voice Input Button */}
-              {speechSupported && (
-                <button
-                  type="button"
-                  onClick={handleToggleListening}
-                  disabled={isTyping}
-                  className={`p-2.5 rounded-xl transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+              <div className="relative flex-1 flex items-center">
+                <input
+                  ref={chatInputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder={
                     isListening
-                      ? "bg-rose-500 text-white animate-pulse shadow-md ring-2 ring-rose-300"
-                      : "bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 border border-slate-200"
-                  }`}
-                  title={isListening ? "Stop listening" : "Click to speak with voice"}
-                  aria-label={isListening ? "Stop voice dictation" : "Start voice dictation"}
-                >
-                  <MicrophoneIcon className="w-4 h-4" />
-                </button>
-              )}
+                      ? "Listening... speak now"
+                      : "Ask about services or book a pickup..."
+                  }
+                  className="w-full pl-3.5 pr-10 py-2.5 rounded-2xl bg-slate-50/90 border border-slate-200 text-slate-900 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                  disabled={isTyping}
+                />
+
+                {/* Embedded Microphone Button */}
+                {speechSupported && (
+                  <button
+                    type="button"
+                    onClick={handleToggleListening}
+                    disabled={isTyping}
+                    className={`absolute right-1.5 p-1.5 rounded-xl transition-all cursor-pointer focus-visible:outline-none ${
+                      isListening
+                        ? "bg-rose-500 text-white animate-pulse shadow-xs"
+                        : "text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+                    }`}
+                    title={isListening ? "Stop listening" : "Click to speak with voice"}
+                    aria-label={isListening ? "Stop voice dictation" : "Start voice dictation"}
+                  >
+                    <MicrophoneIcon className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
               {/* Send Button */}
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isTyping}
-                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
+                className="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer shrink-0"
                 aria-label="Send message"
               >
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -766,12 +918,12 @@ export default function FloatingChatWidget() {
       </AnimatePresence>
 
       {/* ─────────────────────────────────────────────────────────────
-          STATE 1 & 2: FLOATING BUTTON & GREETING BUBBLE
+          STATE 1 & 2: FLOATING TRIGGER BUTTON & PROACTIVE GREETING
          ───────────────────────────────────────────────────────────── */}
       {widgetState !== "open" && (
         <div className="relative flex items-center justify-end">
           
-          {/* Greeting Tooltip */}
+          {/* Greeting Tooltip Bubble */}
           <AnimatePresence>
             {widgetState === "closed-with-greeting" && (
               <motion.div
@@ -781,7 +933,7 @@ export default function FloatingChatWidget() {
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, x: 10 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 onClick={handleOpenChat}
-                className="absolute right-16 sm:right-18 bottom-1 max-w-[250px] sm:max-w-[270px] p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xl cursor-pointer hover:border-emerald-400 transition-colors group"
+                className="absolute right-16 sm:right-18 bottom-1 max-w-[260px] sm:max-w-[280px] p-3.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl cursor-pointer hover:border-emerald-400 transition-all group ring-1 ring-black/5"
                 role="region"
                 aria-live="polite"
                 aria-label="Sage Greeting"
@@ -792,16 +944,17 @@ export default function FloatingChatWidget() {
                   aria-hidden="true"
                 />
 
-                <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="font-utility text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="font-utility text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
                       Sage Assistant
                     </span>
                   </div>
                   <button
+                    type="button"
                     onClick={handleDismissGreeting}
-                    className="text-slate-400 hover:text-slate-700 p-0.5 rounded"
+                    className="text-slate-400 hover:text-slate-700 p-0.5 rounded transition-colors"
                     aria-label="Dismiss greeting"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -810,12 +963,12 @@ export default function FloatingChatWidget() {
                   </button>
                 </div>
 
-                <p className="text-xs text-slate-800 leading-relaxed font-sans">
-                  Hey there! Ready to book a pickup? I can close your order, speak with voice, and send it to WhatsApp right now!
+                <p className="text-xs text-slate-800 leading-relaxed font-sans font-medium">
+                  Hello! Ready to schedule laundry? I can explain services, take voice inputs, and dispatch your order directly to WhatsApp!
                 </p>
-                <div className="mt-2 text-[10px] font-utility font-semibold text-emerald-600 group-hover:underline flex items-center gap-1">
+                <div className="mt-2.5 text-[10px] font-utility font-bold text-emerald-700 group-hover:text-emerald-800 flex items-center gap-1">
                   <span>Start WhatsApp Order</span>
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
@@ -830,16 +983,16 @@ export default function FloatingChatWidget() {
             animate={
               widgetState === "closed-with-greeting" && !shouldReduceMotion
                 ? {
-                    scale: [1, 1.15, 0.95, 1.05, 1],
+                    scale: [1, 1.12, 0.96, 1.04, 1],
                     transition: { duration: 0.6, ease: "easeOut" },
                   }
                 : {}
             }
-            className="group relative w-14 h-14 rounded-full bg-white border-2 border-emerald-500 shadow-emerald-glow shadow-xl flex items-center justify-center p-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+            className="group relative w-14 h-14 rounded-2xl bg-white border-2 border-emerald-500 shadow-xl shadow-emerald-500/20 flex items-center justify-center p-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-1 hover:shadow-2xl active:translate-y-0 cursor-pointer"
             aria-label="Open chat with Sage"
           >
             <SageMascotIllustration className="w-full h-full" />
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           </motion.button>
 
         </div>
