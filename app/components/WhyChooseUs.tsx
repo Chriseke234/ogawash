@@ -18,7 +18,7 @@ const FEATURES: FeaturePill[] = [
     id: "pricing",
     label: "Affordable Pricing",
     title: "Premium fabric care that fits your weekly budget.",
-    description: "Transparent per-pound rates for wash & fold and fixed piece rates for dry cleaning with zero hidden service fees.",
+    description: "Transparent per-kg rates for wash & fold and fixed piece rates for dry cleaning with zero hidden service fees.",
     imageUrl: "https://images.unsplash.com/photo-1582735689369-4fe89db7114c?auto=format&fit=crop&w=1000&q=80",
     badge: "Transparent Pricing",
   },

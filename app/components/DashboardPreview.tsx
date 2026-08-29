@@ -30,7 +30,7 @@ const LANES: Lane[] = [
         id: "#OG-8492",
         timing: "Today, 5:30 PM",
         service: "Wash & Fold + Hang Dry",
-        items: "2 Bags (approx. 24 lbs) • Mixed Delicates",
+        items: "2 Bags (approx. 10 kg) • Mixed Delicates",
         note: "Door code: #4412 • Leave at front desk",
         isNew: true, // One card with single-shot subtle entrance highlight
       },
@@ -78,7 +78,7 @@ const LANES: Lane[] = [
         id: "#OG-8489",
         timing: "Thu, 4:00 PM",
         service: "Standard Wash & Fold",
-        items: "1 Bag (approx. 14 lbs)",
+        items: "1 Bag (approx. 6 kg)",
         note: "Fragrance-free detergent requested",
       },
       {

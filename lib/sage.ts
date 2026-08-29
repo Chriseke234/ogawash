@@ -357,14 +357,14 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   // E. SERVICE EXPLANATION BEFORE BOOKING: WASH & FOLD
   // ─────────────────────────────────────────────────────────────────────────────
   if (normalized.includes("wash & fold") || normalized.includes("wash and fold") || normalized.includes("everyday")) {
-    currentLeadState.data.service = "Wash & Fold ($2.25/lb)";
+    currentLeadState.data.service = "Wash & Fold (₦1,500/kg)";
     currentLeadState.step = "awaiting_confirmation";
 
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
       text: sanitizeSageText(
-        "Wash & Fold Service ($2.25/lb):\n\nOur Wash & Fold is designed for everyday wardrobe care, t-shirts, trousers, towels, and bed linens.\n\n• Handling: Whites and colors are separated and washed in eco-friendly detergents at your preferred temperature.\n• Finishing: Dried with anti-wrinkle cycle and hand-folded neatly by garment type.\n• Packaging: Sealed in breathable protective covers.\n• Turnaround: Standard 24-hour delivery.\n\nWould you like me to book Wash & Fold for your pickup? Reply 'Yes' or 'Book now' to start."
+        "Wash & Fold Service (From ₦1,500/kg):\n\nOur Wash & Fold is designed for everyday wardrobe care, t-shirts, trousers, towels, and bed linens.\n\n• Handling: Whites and colors are separated and washed in eco-friendly detergents at your preferred temperature.\n• Finishing: Dried with anti-wrinkle cycle and hand-folded neatly by garment type.\n• Packaging: Sealed in breathable protective covers.\n• Turnaround: Standard 24-hour delivery.\n\nWould you like me to book Wash & Fold for your pickup? Reply 'Yes' or 'Book now' to start."
       ),
       timestamp: timeStr,
     };
@@ -381,7 +381,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
       id: `msg-${Date.now()}`,
       sender: "sage",
       text: sanitizeSageText(
-        "Delicate Dry Cleaning (From $7.50/item):\n\nSpecialized care dedicated to suits, tailored blazers, evening gowns, silk dresses, cashmere knits, and delicate fabrics.\n\n• Handling: Master cleaners pre-inspect stains and treat fabrics with gentle solvent baths.\n• Finishing: Hand steam pressed with anti-static fabric conditioning.\n• Packaging: Placed on contoured hangers in breathable dust covers.\n• Turnaround: 48 hours for complete fabric treatment.\n\nWould you like me to book Dry Cleaning for your garments? Reply 'Yes' or 'Book now' to start."
+        "Delicate Dry Cleaning (From ₦3,500/item):\n\nSpecialized care dedicated to suits, tailored blazers, evening gowns, silk dresses, cashmere knits, and delicate fabrics.\n\n• Handling: Master cleaners pre-inspect stains and treat fabrics with gentle solvent baths.\n• Finishing: Hand steam pressed with anti-static fabric conditioning.\n• Packaging: Placed on contoured hangers in breathable dust covers.\n• Turnaround: 48 hours for complete fabric treatment.\n\nWould you like me to book Dry Cleaning for your garments? Reply 'Yes' or 'Book now' to start."
       ),
       timestamp: timeStr,
     };
@@ -443,7 +443,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
       id: `msg-${Date.now()}`,
       sender: "sage",
       text: sanitizeSageText(
-        "Here are our transparent rates:\n• Wash & Fold: $2.25/lb (24-hour turnaround)\n• Dry Cleaning: From $7.50/item (48-hour turnaround)\n• Same-Day Express: Ready by 6:00 PM when booked before 10:00 AM\n• Pickup & Delivery: Free on orders over $35\n\nWould you like me to explain any of these services or book your pickup now?"
+        "Here are our transparent rates:\n• Wash & Fold: ₦1,500/kg (24-hour turnaround)\n• Dry Cleaning: From ₦3,500/item (48-hour turnaround)\n• Same-Day Express: Ready by 6:00 PM when booked before 10:00 AM\n• Pickup & Delivery: Free on orders over ₦25,000\n\nWould you like me to explain any of these services or book your pickup now?"
       ),
       timestamp: timeStr,
     };

@@ -17,7 +17,7 @@ const SERVICES: ServiceItem[] = [
   {
     id: "wash-fold",
     title: "Wash & Fold",
-    priceHint: "From $2.25/lb",
+    priceHint: "From ₦1,500/kg",
     description: "Everyday clothing, sheets, and towels washed with care, crisply folded, and sorted by garment type.",
     features: ["Custom temperature & detergent", "Folded & packaged in shields", "24h standard turnaround"],
     icon: (
@@ -31,7 +31,7 @@ const SERVICES: ServiceItem[] = [
   {
     id: "dry-cleaning",
     title: "Dry Cleaning",
-    priceHint: "From $7.50/item",
+    priceHint: "From ₦3,500/item",
     description: "Suits, silk dresses, coats, and delicate fabrics handled with gentle eco-friendly solvent cleaning.",
     features: ["Colorfastness pre-inspection", "Delicate hand steam pressing", "Breathable hanger protection"],
     icon: (
@@ -43,7 +43,7 @@ const SERVICES: ServiceItem[] = [
   {
     id: "pickup-delivery",
     title: "Doorstep Pickup & Delivery",
-    priceHint: "Free on orders over $35",
+    priceHint: "Free on orders over ₦25,000",
     description: "Our dedicated couriers collect from your doorstep and return clean laundry on your selected schedule.",
     features: ["Live SMS / Chat dispatch updates", "Flexible 2-hour collection windows", "Contactless handoff option"],
     icon: (
