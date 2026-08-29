@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { openSageChat } from "@/lib/sage";
 
 interface NavLink {
   name: string;
@@ -87,19 +88,19 @@ export default function Navbar() {
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-3">
-            <a
-              href="#talk-to-sage"
-              className="hidden sm:inline-block text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors px-3 py-2"
+            <button
+              onClick={() => openSageChat("Hi Sage, I'd like to check my account or track an order.")}
+              className="hidden sm:inline-block text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors px-3 py-2 cursor-pointer"
             >
               Sign In
-            </a>
+            </button>
 
-            <a
-              href="#talk-to-sage"
-              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-xs sm:text-sm font-semibold tracking-wide shadow-emerald-glow/50 shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
+            <button
+              onClick={() => openSageChat("Hello! I want to get started with an order.")}
+              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-xs sm:text-sm font-semibold tracking-wide shadow-emerald-glow/50 shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               Get Started
-            </a>
+            </button>
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -164,13 +165,15 @@ export default function Navbar() {
                 </nav>
 
                 <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                  <a
-                    href="#talk-to-sage"
-                    onClick={() => setIsMobileOpen(false)}
-                    className="w-full py-3 rounded-full bg-emerald-600 text-white font-semibold text-sm text-center shadow-md hover:bg-emerald-700 transition-colors"
+                  <button
+                    onClick={() => {
+                      setIsMobileOpen(false);
+                      openSageChat("Hi Sage, I'd like to book a laundry pickup.");
+                    }}
+                    className="w-full py-3 rounded-full bg-emerald-600 text-white font-semibold text-sm text-center shadow-md hover:bg-emerald-700 transition-colors cursor-pointer"
                   >
                     Book Pickup with Sage
-                  </a>
+                  </button>
                 </div>
               </div>
             </motion.div>

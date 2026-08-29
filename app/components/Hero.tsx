@@ -2,11 +2,13 @@
 
 import React from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { openSageChat } from "@/lib/sage";
+import { SageMascotIllustration } from "./FloatingChatWidget";
 
 /**
  * Hero Component
  * Matches the reference design with big centered typography, emerald accent,
- * Get Started CTA, and central laundry bag visual with floating animated badges.
+ * functional Get Started CTA, and central laundry bag visual with the Sage mascot illustration.
  */
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
@@ -22,6 +24,19 @@ export default function Hero() {
         ease: "easeInOut",
       },
     }),
+  };
+
+  // Mascot ambient idle animation
+  const mascotVariants: Variants = {
+    idle: {
+      y: shouldReduceMotion ? 0 : [0, -6, 0],
+      rotate: shouldReduceMotion ? 0 : [0, 1.5, -1.5, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+      },
+    },
   };
 
   const entranceVariants: Variants = {
@@ -70,7 +85,7 @@ export default function Hero() {
           Reliable service, affordable rates, and zero stress — every time.
         </motion.p>
 
-        {/* CTA Button */}
+        {/* CTA Button (Functional Chat Trigger) */}
         <motion.div
           variants={entranceVariants}
           initial="hidden"
@@ -78,17 +93,44 @@ export default function Hero() {
           transition={{ delay: 0.2 }}
           className="mb-14 sm:mb-16"
         >
-          <a
-            href="#talk-to-sage"
-            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-sm sm:text-base font-semibold tracking-wide shadow-emerald-glow shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
+          <button
+            onClick={() => openSageChat("Hi Sage, I'd like to book a laundry pickup.")}
+            className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-sm sm:text-base font-semibold tracking-wide shadow-emerald-glow shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
           >
-            Get Started
-          </a>
+            <span>Get Started</span>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
         </motion.div>
 
-        {/* Centerpiece Visual: Laundry Duffel Bag with Floating Badges */}
+        {/* Centerpiece Visual: Laundry Duffel Bag with Sage Mascot & Floating Badges */}
         <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center pt-4 pb-8">
           
+          {/* ─────────────────────────────────────────────────────────────
+              SAGE MASCOT ILLUSTRATION (Seated gracefully above the duffel)
+             ───────────────────────────────────────────────────────────── */}
+          <motion.div
+            variants={mascotVariants}
+            animate="idle"
+            className="absolute -top-14 sm:-top-18 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center cursor-pointer group"
+            onClick={() => openSageChat("Hello Sage! How can you help me today?")}
+            title="Click to chat with Sage!"
+          >
+            {/* Mascot Character Box with Speech Bubble */}
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 p-2 rounded-3xl bg-white shadow-2xl border-2 border-emerald-500 transform group-hover:scale-105 transition-transform">
+              <SageMascotIllustration className="w-full h-full" />
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              </span>
+            </div>
+
+            {/* Micro Name Tag Pill */}
+            <span className="mt-1 px-2.5 py-0.5 rounded-full bg-emerald-900 text-emerald-100 text-[10px] font-utility font-bold uppercase tracking-wider shadow-sm">
+              Sage AI Assistant
+            </span>
+          </motion.div>
+
           {/* ─────────────────────────────────────────────────────────────
               FLOATING MICRO-BADGES (as seen in the reference)
              ───────────────────────────────────────────────────────────── */}
@@ -175,7 +217,6 @@ export default function Hero() {
               aria-label="Ogawash Premium Laundry Duffel Bag"
             >
               <defs>
-                {/* Bag Fabric Gradients */}
                 <linearGradient id="duffelBody" x1="0" y1="100" x2="540" y2="300" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="#64748B" />
                   <stop offset="50%" stopColor="#475569" />

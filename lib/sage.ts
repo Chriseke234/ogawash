@@ -28,7 +28,20 @@ export const SAGE_INITIAL_MESSAGES: ChatMessage[] = [
 ];
 
 /**
- * Intelligent client-side / simulated response generator for Sage
+ * Trigger global event to open Sage chat from any button across the page
+ */
+export function openSageChat(initialPrompt?: string) {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("open-sage-chat", {
+        detail: { initialPrompt },
+      })
+    );
+  }
+}
+
+/**
+ * Intelligent client-side response generator for Sage
  * Embeds Sage's persona, honesty rules, and service routing.
  */
 export async function getSageResponse(userMessage: string): Promise<ChatMessage> {
@@ -36,7 +49,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   const timeStr = "Just now";
 
   // Simulate subtle natural typing latency
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  await new Promise((resolve) => setTimeout(resolve, 700));
 
   // Direct honesty rule regarding AI/bot identity
   if (
@@ -55,13 +68,65 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     };
   }
 
-  // Pickup scheduling query
+  // Wash & Fold booking
+  if (normalized.includes("wash & fold") || normalized.includes("wash and fold") || normalized.includes("everyday")) {
+    const randomTicketNum = Math.floor(1000 + Math.random() * 9000);
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: "Great choice! Our Wash & Fold is $2.25/lb, washed at your preferred temperature, dried, and crisply folded within 24 hours. What is your collection address and estimated bag count?",
+      timestamp: timeStr,
+      ticket: {
+        id: `#OG-${randomTicketNum}`,
+        service: "Wash & Fold Service",
+        timing: "Ready within 24 Hours",
+        items: "Awaiting pickup address",
+      },
+    };
+  }
+
+  // Dry cleaning booking
+  if (normalized.includes("dry clean") || normalized.includes("suit") || normalized.includes("gown") || normalized.includes("silk")) {
+    const randomTicketNum = Math.floor(1000 + Math.random() * 9000);
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: "I've noted Dry Cleaning for delicate garments/suits. Our master cleaners inspect every fabric and finish with hand steam pressing. Where should our courier pick them up?",
+      timestamp: timeStr,
+      ticket: {
+        id: `#OG-${randomTicketNum}`,
+        service: "Delicate Dry Cleaning",
+        timing: "Ready within 48 Hours",
+        items: "Suits / Delicate Garments",
+      },
+    };
+  }
+
+  // Express Same-Day booking
+  if (normalized.includes("express") || normalized.includes("same day") || normalized.includes("rush")) {
+    const randomTicketNum = Math.floor(1000 + Math.random() * 9000);
+    return {
+      id: `msg-${Date.now()}`,
+      sender: "sage",
+      text: "Express Same-Day priority logged! Orders placed in the morning are washed, pressed, and returned to your doorstep by 6:00 PM today. Please send your address to dispatch the rider.",
+      timestamp: timeStr,
+      ticket: {
+        id: `#OG-${randomTicketNum}`,
+        service: "Express Same-Day Priority",
+        timing: "Delivered by 6:00 PM Today",
+        items: "Priority Express Dispatch",
+      },
+    };
+  }
+
+  // General Pickup scheduling query
   if (
     normalized.includes("pickup") ||
     normalized.includes("schedule") ||
     normalized.includes("book") ||
     normalized.includes("collect") ||
-    normalized.includes("today")
+    normalized.includes("today") ||
+    normalized.includes("start")
   ) {
     const randomTicketNum = Math.floor(1000 + Math.random() * 9000);
     return {
@@ -94,40 +159,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     };
   }
 
-  // Express same-day service query
-  if (
-    normalized.includes("express") ||
-    normalized.includes("same day") ||
-    normalized.includes("rush") ||
-    normalized.includes("fast") ||
-    normalized.includes("urgent")
-  ) {
-    return {
-      id: `msg-${Date.now()}`,
-      sender: "sage",
-      text: "Express Same-Day is prioritized directly for rapid washing and pressing. Orders placed before 10:00 AM are ready for delivery or pickup by 6:00 PM the same day.",
-      timestamp: timeStr,
-    };
-  }
-
-  // Delicates / Specialty items
-  if (
-    normalized.includes("silk") ||
-    normalized.includes("wool") ||
-    normalized.includes("leather") ||
-    normalized.includes("suit") ||
-    normalized.includes("delicate") ||
-    normalized.includes("bedding")
-  ) {
-    return {
-      id: `msg-${Date.now()}`,
-      sender: "sage",
-      text: "We specialize in delicate fabrics like silks, suits, woolens, and heavy bedding. Everything is inspected and washed with fabric-safe solutions and hand steam pressing.",
-      timestamp: timeStr,
-    };
-  }
-
-  // Default warm assistant response
+  // Default assistant response
   return {
     id: `msg-${Date.now()}`,
     sender: "sage",

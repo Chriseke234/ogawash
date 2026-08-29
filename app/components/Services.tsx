@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { openSageChat } from "@/lib/sage";
 
 interface ServiceItem {
   id: string;
@@ -163,13 +164,13 @@ export default function Services() {
                 </ul>
               </div>
 
-              {/* Book Button */}
-              <a
-                href="#talk-to-sage"
-                className="w-full py-2.5 rounded-xl bg-slate-50 group-hover:bg-emerald-600 text-slate-700 group-hover:text-white text-xs font-semibold text-center transition-colors shadow-xs"
+              {/* Book Button (Functional Sage Trigger) */}
+              <button
+                onClick={() => openSageChat(`I would like to book ${service.title}.`)}
+                className="w-full py-2.5 rounded-xl bg-slate-50 group-hover:bg-emerald-600 text-slate-700 group-hover:text-white text-xs font-semibold text-center transition-colors shadow-xs cursor-pointer"
               >
                 Book {service.title}
-              </a>
+              </button>
             </motion.div>
           ))}
         </motion.div>

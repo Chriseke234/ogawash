@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
+import { openSageChat } from "@/lib/sage";
 
 interface FeaturePill {
   id: string;
@@ -132,15 +133,15 @@ export default function WhyChooseUs() {
                   {currentFeature.description}
                 </p>
 
-                <a
-                  href="#talk-to-sage"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md transition-colors"
+                <button
+                  onClick={() => openSageChat(`Tell me more about OgaWash ${currentFeature.label} and how to book.`)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md transition-colors cursor-pointer"
                 >
                   <span>Experience OgaWash</span>
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
-                </a>
+                </button>
               </div>
 
               {/* Right Image Column (Real Unsplash Photo) */}

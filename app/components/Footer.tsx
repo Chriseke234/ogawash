@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { openSageChat } from "@/lib/sage";
 
 const SERVICES_LINKS = [
   { name: "Wash & Fold", href: "#services" },
@@ -11,12 +14,12 @@ const COMPANY_LINKS = [
   { name: "How It Works", href: "#how-it-works" },
   { name: "Why Choose Us", href: "#why-us" },
   { name: "Customer Stories", href: "#testimonials" },
-  { name: "Contact Support", href: "#talk-to-sage" },
+  { name: "Contact Support", href: "#services" },
 ];
 
 /**
  * Footer Component
- * Clean, modern footer matching the new light/emerald design.
+ * Clean, modern footer matching the new light/emerald design with functional chat triggers.
  */
 export default function Footer() {
   return (
@@ -92,15 +95,15 @@ export default function Footer() {
             <p className="text-xs text-slate-400 leading-relaxed mb-4">
               Chat with Sage right now to schedule your collection in seconds.
             </p>
-            <a
-              href="#talk-to-sage"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold tracking-wide transition-colors shadow-md"
+            <button
+              onClick={() => openSageChat("Hi Sage, I would like to schedule a pickup.")}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold tracking-wide transition-colors shadow-md cursor-pointer"
             >
               <span>Book on Chat</span>
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </a>
+            </button>
           </div>
 
         </div>

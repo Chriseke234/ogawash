@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ChatMessage,
@@ -12,8 +12,46 @@ import {
 type WidgetState = "closed-idle" | "closed-with-greeting" | "open";
 
 /**
+ * Sage Mascot Character SVG Illustration
+ */
+export function SageMascotIllustration({ className = "w-8 h-8" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Soft Assistant Cap / Visor */}
+      <path d="M28 32C28 20 72 20 72 32H28Z" fill="#047857" />
+      <rect x="22" y="30" width="56" height="6" rx="3" fill="#10B981" />
+      <circle cx="50" cy="22" r="3.5" fill="#FBBF24" />
+
+      {/* Main Friendly Body */}
+      <rect x="20" y="34" width="60" height="54" rx="22" fill="#FFFFFF" stroke="#059669" strokeWidth="4" />
+
+      {/* Screen Face Area */}
+      <rect x="28" y="42" width="44" height="28" rx="12" fill="#F0FDF4" stroke="#A7F3D0" strokeWidth="2" />
+
+      {/* Friendly Expressive Eyes */}
+      <circle cx="40" cy="54" r="3.8" fill="#047857" />
+      <circle cx="41.5" cy="52.5" r="1.3" fill="#FFFFFF" />
+      
+      <circle cx="60" cy="54" r="3.8" fill="#047857" />
+      <circle cx="61.5" cy="52.5" r="1.3" fill="#FFFFFF" />
+
+      {/* Warm Smile */}
+      <path d="M44 62C46.5 65 53.5 65 56 62" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" />
+
+      {/* Soft Rosy Cheeks */}
+      <ellipse cx="34" cy="58" rx="2.5" ry="1.5" fill="#FCA5A5" opacity="0.8" />
+      <ellipse cx="66" cy="58" rx="2.5" ry="1.5" fill="#FCA5A5" opacity="0.8" />
+
+      {/* Assistant Bowtie / Badge */}
+      <path d="M46 88L50 84L54 88L50 92L46 88Z" fill="#10B981" />
+      <circle cx="50" cy="88" r="2" fill="#FBBF24" />
+    </svg>
+  );
+}
+
+/**
  * FloatingChatWidget Component
- * Persistent floating AI laundry assistant with emerald styling and instant booking flow.
+ * Persistent floating AI laundry assistant with event listening for global button triggers.
  */
 export default function FloatingChatWidget() {
   const [widgetState, setWidgetState] = useState<WidgetState>("closed-idle");
@@ -37,6 +75,60 @@ export default function FloatingChatWidget() {
       scrollToBottom();
     }
   }, [messages, isTyping, widgetState]);
+
+  // Handle message sending
+  const handleSendMessage = useCallback(async (textToSend?: string) => {
+    const text = (textToSend || inputValue).trim();
+    if (!text || isTyping) return;
+
+    const userMsg: ChatMessage = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text,
+      timestamp: "Just now",
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+    setIsTyping(true);
+
+    try {
+      const sageResponse = await getSageResponse(text);
+      setMessages((prev) => [...prev, sageResponse]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `err-${Date.now()}`,
+          sender: "sage",
+          text: "I'm having a brief connection hitch, but our team is ready to book your laundry.",
+          timestamp: "Just now",
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  }, [inputValue, isTyping]);
+
+  // Listen to global open-sage-chat events from buttons across the page
+  useEffect(() => {
+    const handleGlobalOpen = (e: Event) => {
+      const customEvent = e as CustomEvent<{ initialPrompt?: string }>;
+      setWidgetState("open");
+      setGreetingDismissed(true);
+
+      if (customEvent.detail?.initialPrompt) {
+        handleSendMessage(customEvent.detail.initialPrompt);
+      }
+
+      setTimeout(() => {
+        chatInputRef.current?.focus();
+      }, 200);
+    };
+
+    window.addEventListener("open-sage-chat", handleGlobalOpen);
+    return () => window.removeEventListener("open-sage-chat", handleGlobalOpen);
+  }, [handleSendMessage]);
 
   // Delayed greeting trigger (~2.5s post-load)
   useEffect(() => {
@@ -122,39 +214,6 @@ export default function FloatingChatWidget() {
     setGreetingDismissed(true);
   };
 
-  const handleSendMessage = async (textToSend?: string) => {
-    const text = (textToSend || inputValue).trim();
-    if (!text || isTyping) return;
-
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text,
-      timestamp: "Just now",
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputValue("");
-    setIsTyping(true);
-
-    try {
-      const sageResponse = await getSageResponse(text);
-      setMessages((prev) => [...prev, sageResponse]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `err-${Date.now()}`,
-          sender: "sage",
-          text: "I'm having a brief connection hitch, but our team is ready to book your laundry.",
-          timestamp: "Just now",
-        },
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
   return (
     <div
       ref={widgetContainerRef}
@@ -172,25 +231,23 @@ export default function FloatingChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[380px] sm:h-[520px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
+            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[390px] sm:h-[530px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
             role="dialog"
             aria-modal="true"
             aria-label="Chat with Sage"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3.5 bg-emerald-600 text-white">
+            <div className="flex items-center justify-between px-4 py-3 bg-emerald-600 text-white shadow-sm">
               <div className="flex items-center gap-2.5">
-                <div className="relative w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-                  </svg>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-300 ring-2 ring-emerald-600" />
+                <div className="relative w-9 h-9 rounded-full bg-white flex items-center justify-center p-0.5 shadow-inner">
+                  <SageMascotIllustration className="w-full h-full" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-600" />
                 </div>
 
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h2 className="text-sm font-bold text-white leading-tight">Sage</h2>
-                    <span className="px-1.5 py-0.2 rounded bg-emerald-700/60 text-[10px] font-utility text-emerald-100 uppercase font-semibold">
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-700/80 text-[10px] font-utility text-emerald-100 uppercase font-semibold">
                       AI Assistant
                     </span>
                   </div>
@@ -285,7 +342,7 @@ export default function FloatingChatWidget() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask Sage or request an order..."
+                placeholder="Ask Sage or book laundry..."
                 className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 disabled={isTyping}
               />
@@ -362,7 +419,7 @@ export default function FloatingChatWidget() {
             )}
           </AnimatePresence>
 
-          {/* Floating Trigger Button */}
+          {/* Floating Trigger Button with Mascot Icon */}
           <motion.button
             ref={triggerButtonRef}
             onClick={handleOpenChat}
@@ -374,13 +431,11 @@ export default function FloatingChatWidget() {
                   }
                 : {}
             }
-            className="group relative w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow shadow-xl flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group relative w-14 h-14 rounded-full bg-white border-2 border-emerald-500 shadow-emerald-glow shadow-xl flex items-center justify-center p-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
             aria-label="Open chat with Sage"
           >
-            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 ring-2 ring-white" />
+            <SageMascotIllustration className="w-full h-full" />
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           </motion.button>
 
         </div>
