@@ -239,10 +239,15 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     const whatsappLink = formatWhatsAppOrderUrl(currentLeadState.data);
     currentLeadState.data.whatsappUrl = whatsappLink;
 
+    const customerName = currentLeadState.data.name || "valued customer";
+    const serviceName = currentLeadState.data.service || "Doorstep Laundry";
+    const address = currentLeadState.data.address || "your address";
+    const timing = currentLeadState.data.timing || "scheduled time";
+
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `🎉 Your order ticket is **verified and ready for dispatch**! Click the green button below to send your order directly to our team's WhatsApp at **+234 903 037 5493** for immediate rider assignment.`,
+      text: `🎉 **Thank you so much for choosing Ogawash, ${customerName}!**\n\nYour **${serviceName}** pickup is confirmed for **${timing}** at **${address}**.\n\nOur team has logged your dispatch ticket. Click the green **'Send Order to WhatsApp'** button below to send your details directly to our team at **+234 903 037 5493** for immediate rider assignment and live tracking!`,
       timestamp: timeStr,
       ticket: {
         id: currentLeadState.data.ticketId || "#OG-7721",
