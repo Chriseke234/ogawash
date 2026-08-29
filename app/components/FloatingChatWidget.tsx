@@ -7,6 +7,8 @@ import {
   SAGE_INITIAL_MESSAGES,
   SAGE_QUICK_PROMPTS,
   getSageResponse,
+  resetLeadState,
+  OWNER_WHATSAPP_NUMBER,
 } from "@/lib/sage";
 
 type WidgetState = "closed-idle" | "closed-with-greeting" | "open";
@@ -50,8 +52,19 @@ export function SageMascotIllustration({ className = "w-8 h-8" }: { className?: 
 }
 
 /**
+ * WhatsApp SVG Icon
+ */
+function WhatsAppIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.585 1.761.88 2.79.88 3.183 0 5.768-2.587 5.769-5.766.001-3.182-2.585-5.766-5.768-5.766zm9.969 5.766c-.002 5.518-4.484 9.998-10 9.998-1.766 0-3.414-.46-4.851-1.267l-5.149 1.331 1.37-4.997c-.908-1.498-1.37-3.23-1.37-5.065.003-5.519 4.485-10 10-10 5.516 0 10 4.481 10 10zm-5.467 4.195c-.247-.123-1.464-.722-1.691-.804-.227-.083-.393-.123-.559.123-.166.246-.641.804-.785.968-.144.164-.288.184-.535.061-.247-.123-1.043-.385-1.986-1.226-.734-.655-1.23-1.465-1.374-1.711-.144-.247-.015-.38.109-.502.111-.11.247-.287.371-.431.124-.144.165-.246.247-.411.082-.164.041-.308-.021-.431-.062-.123-.559-1.347-.765-1.844-.201-.484-.405-.418-.558-.426-.144-.007-.309-.009-.474-.009s-.433.062-.66.308c-.227.247-.866.847-.866 2.064s.887 2.391 1.01 2.556c.124.164 1.745 2.664 4.228 3.737.591.256 1.052.409 1.411.523.593.189 1.134.162 1.561.099.476-.071 1.464-.598 1.67-1.176.206-.578.206-1.073.144-1.176-.061-.103-.226-.164-.473-.287z" />
+    </svg>
+  );
+}
+
+/**
  * FloatingChatWidget Component
- * Persistent floating AI laundry assistant with event listening for global button triggers.
+ * Persistent floating AI laundry assistant with automatic lead closing and direct WhatsApp dispatch.
  */
 export default function FloatingChatWidget() {
   const [widgetState, setWidgetState] = useState<WidgetState>("closed-idle");
@@ -110,7 +123,7 @@ export default function FloatingChatWidget() {
     }
   }, [inputValue, isTyping]);
 
-  // Listen to global open-sage-chat events from buttons across the page
+  // Listen to global open-sage-chat events
   useEffect(() => {
     const handleGlobalOpen = (e: Event) => {
       const customEvent = e as CustomEvent<{ initialPrompt?: string }>;
@@ -214,6 +227,18 @@ export default function FloatingChatWidget() {
     setGreetingDismissed(true);
   };
 
+  const handleStartNewOrder = () => {
+    resetLeadState();
+    setMessages([
+      {
+        id: `init-${Date.now()}`,
+        sender: "sage",
+        text: "Let's start a fresh order! What service do you need today? (Wash & Fold, Dry Cleaning, or Same-Day Express)",
+        timestamp: "Just now",
+      },
+    ]);
+  };
+
   return (
     <div
       ref={widgetContainerRef}
@@ -231,7 +256,7 @@ export default function FloatingChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[390px] sm:h-[530px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
+            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[400px] sm:h-[560px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
             role="dialog"
             aria-modal="true"
             aria-label="Chat with Sage"
@@ -248,23 +273,32 @@ export default function FloatingChatWidget() {
                   <div className="flex items-center gap-1.5">
                     <h2 className="text-sm font-bold text-white leading-tight">Sage</h2>
                     <span className="px-1.5 py-0.2 rounded bg-emerald-700/80 text-[10px] font-utility text-emerald-100 uppercase font-semibold">
-                      AI Assistant
+                      WhatsApp Dispatch Ready
                     </span>
                   </div>
-                  <p className="text-[11px] text-emerald-100/90">Instant booking • Doorstep pickup</p>
+                  <p className="text-[11px] text-emerald-100/90">Instant lead booking • Direct to Owner</p>
                 </div>
               </div>
 
-              {/* Close Button */}
-              <button
-                onClick={handleCloseChat}
-                className="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                aria-label="Close chat"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleStartNewOrder}
+                  className="px-2 py-1 rounded-lg text-[10px] font-utility font-semibold bg-emerald-700/80 text-emerald-100 hover:text-white hover:bg-emerald-800 transition-colors"
+                  title="Start a new order"
+                >
+                  New Order
+                </button>
+                <button
+                  onClick={handleCloseChat}
+                  className="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  aria-label="Close chat"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Message Thread */}
@@ -278,24 +312,83 @@ export default function FloatingChatWidget() {
                   className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs ${
+                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs ${
                       msg.sender === "user"
                         ? "bg-emerald-600 text-white font-medium rounded-tr-sm"
                         : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
                     }`}
                   >
-                    <p>{msg.text}</p>
+                    <p className="whitespace-pre-line">{msg.text}</p>
 
-                    {/* Order Ticket Card */}
+                    {/* ─────────────────────────────────────────────────────────────
+                        FINAL VERIFIED ORDER TICKET WITH ONE-TAP WHATSAPP DISPATCH
+                       ───────────────────────────────────────────────────────────── */}
                     {msg.ticket && (
-                      <div className="mt-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-left">
-                        <div className="flex items-center justify-between text-[11px] font-utility font-bold text-emerald-800 mb-1">
-                          <span>{msg.ticket.id}</span>
-                          <span className="px-1.5 py-0.2 bg-emerald-200/60 rounded">DRAFT ORDER</span>
+                      <div className="mt-3 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-left shadow-sm">
+                        {/* Ticket Header */}
+                        <div className="flex items-center justify-between text-[11px] font-utility font-bold text-emerald-800 pb-2 mb-2 border-b border-emerald-200">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                            {msg.ticket.id}
+                          </span>
+                          <span className="px-2 py-0.5 bg-emerald-200/80 rounded-full text-emerald-900 text-[10px]">
+                            {msg.ticket.isFinalized ? "DISPATCH READY" : "IN PROGRESS"}
+                          </span>
                         </div>
-                        <div className="text-xs font-bold text-slate-900 mb-0.5">{msg.ticket.service}</div>
-                        <div className="text-[11px] text-slate-600 mb-0.5">{msg.ticket.timing}</div>
-                        <div className="text-[11px] text-emerald-700 font-semibold">{msg.ticket.items}</div>
+
+                        {/* Order Details List */}
+                        <div className="space-y-1.5 text-xs">
+                          <div>
+                            <span className="text-slate-500 text-[11px]">Service: </span>
+                            <span className="font-bold text-slate-900">{msg.ticket.service}</span>
+                          </div>
+
+                          {msg.ticket.customerName && (
+                            <div>
+                              <span className="text-slate-500 text-[11px]">Customer: </span>
+                              <span className="font-semibold text-slate-900">{msg.ticket.customerName}</span>
+                            </div>
+                          )}
+
+                          {msg.ticket.customerPhone && (
+                            <div>
+                              <span className="text-slate-500 text-[11px]">Phone: </span>
+                              <span className="font-semibold text-slate-900">{msg.ticket.customerPhone}</span>
+                            </div>
+                          )}
+
+                          {msg.ticket.customerAddress && (
+                            <div>
+                              <span className="text-slate-500 text-[11px]">Address: </span>
+                              <span className="font-semibold text-slate-900">{msg.ticket.customerAddress}</span>
+                            </div>
+                          )}
+
+                          {msg.ticket.timing && (
+                            <div>
+                              <span className="text-slate-500 text-[11px]">Pickup: </span>
+                              <span className="font-semibold text-emerald-800">{msg.ticket.timing}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Direct One-Tap WhatsApp Dispatch Button */}
+                        {msg.ticket.whatsappUrl && (
+                          <div className="mt-3 pt-2.5 border-t border-emerald-200 flex flex-col gap-1.5">
+                            <a
+                              href={msg.ticket.whatsappUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                              <WhatsAppIcon className="w-4 h-4" />
+                              <span>Send Order to WhatsApp</span>
+                            </a>
+                            <p className="text-[10px] text-center text-emerald-800/80 font-utility">
+                              Direct to Owner ({OWNER_WHATSAPP_NUMBER})
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -316,13 +409,13 @@ export default function FloatingChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Action Pills */}
+            {/* Quick Action Service Chips */}
             <div className="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {SAGE_QUICK_PROMPTS.map((prompt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(prompt)}
-                  className="whitespace-nowrap px-3 py-1 rounded-full bg-slate-100 text-[11px] font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-transparent transition-colors"
+                  className="whitespace-nowrap px-3 py-1 rounded-full bg-slate-100 text-[11px] font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-transparent transition-colors cursor-pointer"
                 >
                   {prompt}
                 </button>
@@ -342,14 +435,14 @@ export default function FloatingChatWidget() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask Sage or book laundry..."
+                placeholder="Type your response or details..."
                 className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 disabled={isTyping}
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isTyping}
-                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 cursor-pointer"
                 aria-label="Send message"
               >
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,10 +500,10 @@ export default function FloatingChatWidget() {
                 </div>
 
                 <p className="text-xs text-slate-800 leading-relaxed font-sans">
-                  Hey there! Need a quick doorstep laundry pickup or price estimate?
+                  Hey there! Ready to book a pickup? I can close your order and send it to WhatsApp right now!
                 </p>
                 <div className="mt-2 text-[10px] font-utility font-semibold text-emerald-600 group-hover:underline flex items-center gap-1">
-                  <span>Chat now</span>
+                  <span>Start WhatsApp Order</span>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
@@ -431,7 +524,7 @@ export default function FloatingChatWidget() {
                   }
                 : {}
             }
-            className="group relative w-14 h-14 rounded-full bg-white border-2 border-emerald-500 shadow-emerald-glow shadow-xl flex items-center justify-center p-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group relative w-14 h-14 rounded-full bg-white border-2 border-emerald-500 shadow-emerald-glow shadow-xl flex items-center justify-center p-1 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             aria-label="Open chat with Sage"
           >
             <SageMascotIllustration className="w-full h-full" />
