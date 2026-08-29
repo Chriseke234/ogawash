@@ -545,7 +545,7 @@ export default function FloatingChatWidget() {
             className="fixed inset-2 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[420px] sm:h-[610px] max-h-[94vh] flex flex-col rounded-3xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl overflow-hidden z-50 ring-1 ring-black/5"
             role="dialog"
             aria-modal="true"
-            aria-label="Chat with Sage AI Concierge"
+            aria-label="Chat with Sage Assistant"
           >
             {/* Luxury Glassmorphic Header */}
             <div className="relative flex items-center justify-between px-4 py-3.5 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-md border-b border-emerald-700/50">
@@ -559,12 +559,9 @@ export default function FloatingChatWidget() {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <h2 className="text-sm font-bold text-white tracking-tight">Sage</h2>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-700/70 border border-emerald-500/40 text-[10px] font-utility font-semibold text-emerald-100 uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                      Live Concierge
-                    </span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Online" />
                   </div>
                   <p className="text-[11px] text-emerald-100/90 font-medium">
                     {isSpeaking
