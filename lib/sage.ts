@@ -8,6 +8,8 @@ export interface LeadData {
   notes?: string;
   isClosed?: boolean;
   whatsappUrl?: string;
+  ownerWhatsappUrl?: string;
+  customerWhatsappUrl?: string;
 }
 
 export interface ChatMessage {
@@ -24,6 +26,8 @@ export interface ChatMessage {
     customerPhone?: string;
     customerAddress?: string;
     whatsappUrl?: string;
+    ownerWhatsappUrl?: string;
+    customerWhatsappUrl?: string;
     isFinalized?: boolean;
     trackingStatus?: string;
     stageProgress?: number;
@@ -44,10 +48,39 @@ export const SAGE_INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "init-1",
     sender: "sage",
-    text: "Hello! I'm Sage, your Ogawash laundry assistant. I can explain any of our laundry & dry cleaning services, calculate pricing, or book your doorstep pickup in 60 seconds. What service would you like to know more about?",
+    text: "Hello! I am Sage, your Ogawash laundry assistant. I can explain our laundry and dry cleaning services, calculate pricing, or book your doorstep pickup in 60 seconds. What service would you like to know more about?",
     timestamp: "Just now",
   },
 ];
+
+/**
+ * Strips all forms of asterisks to ensure messages look human and natural.
+ */
+export function sanitizeSageText(text: string): string {
+  return text.replace(/\*/g, "").trim();
+}
+
+/**
+ * Normalizes phone numbers to standard WhatsApp format.
+ * Handles Nigerian local numbers (e.g. 08012345678 -> 2348012345678) and international formats.
+ */
+export function normalizeWhatsAppPhone(phone?: string): string {
+  if (!phone) return "";
+  const cleaned = phone.replace(/\D/g, "");
+  if (!cleaned) return "";
+
+  // If Nigerian local format starting with 0 (11 digits: e.g. 08031234567, 09030375493)
+  if (cleaned.startsWith("0") && cleaned.length === 11) {
+    return `234${cleaned.slice(1)}`;
+  }
+
+  // If 10 digits without leading zero (e.g. 8031234567)
+  if (cleaned.length === 10) {
+    return `234${cleaned}`;
+  }
+
+  return cleaned;
+}
 
 /**
  * Trigger global event to open Sage chat from any button across the page
@@ -63,27 +96,64 @@ export function openSageChat(initialPrompt?: string) {
 }
 
 /**
- * Builds the direct WhatsApp click-to-chat URL for the owner with pre-formatted order details
+ * Builds the direct WhatsApp click-to-chat URL for the business owner with pre-formatted dispatch details
  */
-export function formatWhatsAppOrderUrl(lead: LeadData): string {
-  const cleanPhone = OWNER_WHATSAPP_NUMBER.replace(/\D/g, "");
+export function formatOwnerWhatsAppUrl(lead: LeadData): string {
+  const cleanOwnerPhone = OWNER_WHATSAPP_NUMBER.replace(/\D/g, "");
   const orderMessage = [
-    `*NEW OGAWASH LAUNDRY ORDER*`,
-    `-----------------------------`,
-    `*Order Ticket:* ${lead.ticketId || "#OG-" + Math.floor(1000 + Math.random() * 9000)}`,
-    `*Customer Name:* ${lead.name || "Valued Customer"}`,
-    `*Phone Number:* ${lead.phone || "Not provided"}`,
-    `*Service Requested:* ${lead.service || "Standard Laundry"}`,
-    `*Pickup Address:* ${lead.address || "Pending confirmation"}`,
-    `*Preferred Pickup Time:* ${lead.timing || "As soon as possible"}`,
-    lead.notes ? `*Special Instructions:* ${lead.notes}` : "",
-    `-----------------------------`,
-    `_Generated automatically by Sage AI Assistant_`,
+    "NEW OGAWASH LAUNDRY DISPATCH",
+    "-----------------------------",
+    `Order Ticket: ${lead.ticketId || "#OG-" + Math.floor(1000 + Math.random() * 9000)}`,
+    `Customer Name: ${lead.name || "Valued Customer"}`,
+    `Phone Number: ${lead.phone || "Not provided"}`,
+    `Service Requested: ${lead.service || "Standard Laundry"}`,
+    `Pickup Address: ${lead.address || "Pending confirmation"}`,
+    `Preferred Pickup Time: ${lead.timing || "As soon as possible"}`,
+    lead.notes ? `Special Instructions: ${lead.notes}` : "",
+    "-----------------------------",
+    "Generated automatically by Sage Ogawash Assistant",
   ]
     .filter(Boolean)
     .join("\n");
 
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(orderMessage)}`;
+  return `https://wa.me/${cleanOwnerPhone}?text=${encodeURIComponent(orderMessage)}`;
+}
+
+/**
+ * Builds the direct WhatsApp click-to-chat URL for the customer with their order confirmation and receipt
+ */
+export function formatCustomerWhatsAppUrl(lead: LeadData): string {
+  const customerPhone = normalizeWhatsAppPhone(lead.phone);
+  const confirmationMessage = [
+    "OGAWASH LAUNDRY BOOKING CONFIRMATION",
+    "-----------------------------",
+    `Hello ${lead.name || "there"}! Here is your official Ogawash pickup receipt:`,
+    "",
+    `Ticket ID: ${lead.ticketId || "#OG-" + Math.floor(1000 + Math.random() * 9000)}`,
+    `Service: ${lead.service || "Standard Laundry"}`,
+    `Pickup Address: ${lead.address || "Pending confirmation"}`,
+    `Scheduled Time: ${lead.timing || "As soon as possible"}`,
+    "Status: Confirmed & Dispatched",
+    "",
+    "Our rider will contact you prior to arrival. Need help? Call or WhatsApp our dispatch desk at +234 903 037 5493.",
+    "-----------------------------",
+    "Thank you for choosing Ogawash!",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  if (customerPhone) {
+    return `https://wa.me/${customerPhone}?text=${encodeURIComponent(confirmationMessage)}`;
+  }
+  // Fallback to general WhatsApp share if phone not yet provided
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(confirmationMessage)}`;
+}
+
+/**
+ * Backward compatibility alias for owner URL
+ */
+export function formatWhatsAppOrderUrl(lead: LeadData): string {
+  return formatOwnerWhatsAppUrl(lead);
 }
 
 // Conversation Session State for Lead Closing & Tracking
@@ -119,7 +189,7 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   const timeStr = "Just now";
 
   // Simulate subtle natural typing latency
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   // Initialize ticket ID if not set
   if (!currentLeadState.data.ticketId) {
@@ -140,7 +210,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "I can look up your order status right away! Please reply with your **Order Ticket ID** (e.g., `#OG-5821`) or the **Phone Number** you used for booking.",
+      text: sanitizeSageText(
+        "I can look up your order status right away. Please reply with your Order Ticket ID (such as #OG-5821) or the Phone Number you used when booking."
+      ),
       timestamp: timeStr,
     };
   }
@@ -157,7 +229,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Found your account for **${lookupKey}**! Here is your live order tracking status:`,
+      text: sanitizeSageText(
+        `Found your account for ${lookupKey}. Here is your live order tracking status:`
+      ),
       timestamp: timeStr,
       ticket: {
         id: demoTicketId,
@@ -190,7 +264,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Excellent! Let's book your **${currentLeadState.data.service || "doorstep pickup"}**. To get your dispatch ticket ready, what is your **Full Name**?`,
+      text: sanitizeSageText(
+        `Excellent. Let us book your ${currentLeadState.data.service || "doorstep pickup"}. To get your dispatch ticket ready, what is your full name?`
+      ),
       timestamp: timeStr,
     };
   }
@@ -204,7 +280,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Nice to meet you, **${currentLeadState.data.name}**! What is your **Phone / WhatsApp number** so our rider can contact you upon arrival?`,
+      text: sanitizeSageText(
+        `Nice to meet you, ${currentLeadState.data.name}. What is your Phone or WhatsApp number so our rider can contact you upon arrival?`
+      ),
       timestamp: timeStr,
     };
   }
@@ -215,7 +293,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Got your number! Where should our dispatch rider pick up your laundry? Please enter your **Street Address / Area**.`,
+      text: sanitizeSageText(
+        "Got your number. Where should our dispatch rider pick up your laundry? Please enter your street address and area."
+      ),
       timestamp: timeStr,
     };
   }
@@ -226,7 +306,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `Perfect. What **date & time window** works best for your doorstep pickup? (e.g. *Today 5:00 PM*, *Tomorrow 9:00 AM*, or *ASAP*)`,
+      text: sanitizeSageText(
+        "Perfect. What date and time window works best for your doorstep pickup? (For example: Today 5:00 PM, Tomorrow 9:00 AM, or ASAP)"
+      ),
       timestamp: timeStr,
     };
   }
@@ -236,8 +318,12 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     currentLeadState.data.isClosed = true;
     currentLeadState.step = "closed";
 
-    const whatsappLink = formatWhatsAppOrderUrl(currentLeadState.data);
-    currentLeadState.data.whatsappUrl = whatsappLink;
+    const ownerWhatsappLink = formatOwnerWhatsAppUrl(currentLeadState.data);
+    const customerWhatsappLink = formatCustomerWhatsAppUrl(currentLeadState.data);
+
+    currentLeadState.data.whatsappUrl = ownerWhatsappLink;
+    currentLeadState.data.ownerWhatsappUrl = ownerWhatsappLink;
+    currentLeadState.data.customerWhatsappUrl = customerWhatsappLink;
 
     const customerName = currentLeadState.data.name || "valued customer";
     const serviceName = currentLeadState.data.service || "Doorstep Laundry";
@@ -247,7 +333,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: `🎉 **Thank you so much for choosing Ogawash, ${customerName}!**\n\nYour **${serviceName}** pickup is confirmed for **${timing}** at **${address}**.\n\nOur team has logged your dispatch ticket. Click the green **'Send Order to WhatsApp'** button below to send your details directly to our team at **+234 903 037 5493** for immediate rider assignment and live tracking!`,
+      text: sanitizeSageText(
+        `Thank you so much for choosing Ogawash, ${customerName}!\n\nYour ${serviceName} pickup is confirmed for ${timing} at ${address}.\n\nOur team has generated your dispatch ticket. Use the buttons below to send the order to our dispatch team on WhatsApp and receive a copy on your own WhatsApp number.`
+      ),
       timestamp: timeStr,
       ticket: {
         id: currentLeadState.data.ticketId || "#OG-7721",
@@ -257,7 +345,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
         customerName: currentLeadState.data.name,
         customerPhone: currentLeadState.data.phone,
         customerAddress: currentLeadState.data.address,
-        whatsappUrl: whatsappLink,
+        whatsappUrl: ownerWhatsappLink,
+        ownerWhatsappUrl: ownerWhatsappLink,
+        customerWhatsappUrl: customerWhatsappLink,
         isFinalized: true,
       },
     };
@@ -273,7 +363,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "🧺 **Wash & Fold Service ($2.25/lb)**:\n\nOur Wash & Fold is designed for everyday wardrobe care, t-shirts, pants, towels, and bed linens.\n\n• **How we handle it**: Whites and colors are washed separately in eco-friendly detergents at your preferred water temperature.\n• **Finishing**: Dried with anti-wrinkle cycle and crisply hand-folded by garment type.\n• **Packaging**: Sealed in breathable protective shields.\n• **Turnaround**: Standard 24-hour return.\n\n👉 **Would you like me to book Wash & Fold for your pickup?**\n*(Reply **'Yes'** or **'Book now'** to get started, or ask any other questions)*",
+      text: sanitizeSageText(
+        "Wash & Fold Service ($2.25/lb):\n\nOur Wash & Fold is designed for everyday wardrobe care, t-shirts, trousers, towels, and bed linens.\n\n• Handling: Whites and colors are separated and washed in eco-friendly detergents at your preferred temperature.\n• Finishing: Dried with anti-wrinkle cycle and hand-folded neatly by garment type.\n• Packaging: Sealed in breathable protective covers.\n• Turnaround: Standard 24-hour delivery.\n\nWould you like me to book Wash & Fold for your pickup? Reply 'Yes' or 'Book now' to start."
+      ),
       timestamp: timeStr,
     };
   }
@@ -288,7 +380,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "👔 **Delicate Dry Cleaning (From $7.50/item)**:\n\nSpecialized care dedicated to suits, tailored blazers, silk evening dresses, cashmere knits, and delicate fabrics.\n\n• **How we handle it**: Master cleaners pre-inspect stains and colorfastness, then treat garments with gentle solvent baths.\n• **Finishing**: Finished with hand steam pressing and anti-static treatment.\n• **Packaging**: Placed on premium wooden/contoured hangers in breathable dust shields.\n• **Turnaround**: 48 hours for complete fabric conditioning.\n\n👉 **Would you like me to book Dry Cleaning for your garments?**\n*(Reply **'Yes'** or **'Book now'** to get started)*",
+      text: sanitizeSageText(
+        "Delicate Dry Cleaning (From $7.50/item):\n\nSpecialized care dedicated to suits, tailored blazers, evening gowns, silk dresses, cashmere knits, and delicate fabrics.\n\n• Handling: Master cleaners pre-inspect stains and treat fabrics with gentle solvent baths.\n• Finishing: Hand steam pressed with anti-static fabric conditioning.\n• Packaging: Placed on contoured hangers in breathable dust covers.\n• Turnaround: 48 hours for complete fabric treatment.\n\nWould you like me to book Dry Cleaning for your garments? Reply 'Yes' or 'Book now' to start."
+      ),
       timestamp: timeStr,
     };
   }
@@ -303,7 +397,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "⚡ **Same-Day Express Service**:\n\nOur priority rush lane for emergencies and rapid turnaround.\n\n• **Schedule**: Orders placed and collected before 10:00 AM are prioritized in rapid thermal washers.\n• **Finishing**: High-speed steam pressing and rapid packaging.\n• **Delivery**: Returned clean and crisp to your doorstep by 6:00 PM the exact same day.\n\n👉 **Would you like me to book Same-Day Express for today?**\n*(Reply **'Yes'** or **'Book now'** to get started)*",
+      text: sanitizeSageText(
+        "Same-Day Express Service:\n\nOur priority rush lane for emergencies and rapid turnaround.\n\n• Schedule: Orders booked and collected before 10:00 AM receive immediate processing in rapid washers.\n• Finishing: High-speed steam pressing and rapid packaging.\n• Delivery: Returned fresh and crisp to your doorstep by 6:00 PM the exact same day.\n\nWould you like me to book Same-Day Express for today? Reply 'Yes' or 'Book now' to start."
+      ),
       timestamp: timeStr,
     };
   }
@@ -325,7 +421,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "Awesome! Let's book your doorstep laundry pickup in under 60 seconds.\n\nTo get your dispatch ticket ready, what is your **Full Name**?",
+      text: sanitizeSageText(
+        "Great! Let us book your doorstep laundry pickup in under 60 seconds.\n\nTo get your dispatch ticket ready, what is your full name?"
+      ),
       timestamp: timeStr,
     };
   }
@@ -344,7 +442,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
     return {
       id: `msg-${Date.now()}`,
       sender: "sage",
-      text: "Here are our transparent rates:\n• **Wash & Fold**: $2.25/lb (24h turnaround)\n• **Dry Cleaning**: From $7.50/item (48h turnaround)\n• **Same-Day Express**: Ready by 6:00 PM when booked before 10:00 AM\n• **Pickup & Delivery**: Free on orders over $35\n\nWould you like me to explain any of these services, or book a pickup now?",
+      text: sanitizeSageText(
+        "Here are our transparent rates:\n• Wash & Fold: $2.25/lb (24-hour turnaround)\n• Dry Cleaning: From $7.50/item (48-hour turnaround)\n• Same-Day Express: Ready by 6:00 PM when booked before 10:00 AM\n• Pickup & Delivery: Free on orders over $35\n\nWould you like me to explain any of these services or book your pickup now?"
+      ),
       timestamp: timeStr,
     };
   }
@@ -355,7 +455,9 @@ export async function getSageResponse(userMessage: string): Promise<ChatMessage>
   return {
     id: `msg-${Date.now()}`,
     sender: "sage",
-    text: `I'm here to help! I can:\n• **Explain our services** (e.g. *"Explain Wash & Fold"* or *"Explain Dry Cleaning"*)\n• **Book a pickup** (say *"Book Us Now"*)\n• **Track an order** (say *"Track order"*)\n\nWhat service would you like to explore?`,
+    text: sanitizeSageText(
+      "I am here to help. I can:\n• Explain our services (such as 'Explain Wash & Fold' or 'Explain Dry Cleaning')\n• Book a pickup (say 'Book Us Now')\n• Track an order (say 'Track order')\n\nWhat service would you like to explore?"
+    ),
     timestamp: timeStr,
   };
 }
