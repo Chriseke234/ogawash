@@ -13,10 +13,7 @@ type WidgetState = "closed-idle" | "closed-with-greeting" | "open";
 
 /**
  * FloatingChatWidget Component
- * Persistent floating concierge widget with 3 states:
- * - closed-idle
- * - closed-with-greeting (~2.5s delayed eye-catching bounce + speech tooltip)
- * - open (full responsive chat panel with live Sage concierge engine)
+ * Persistent floating AI laundry assistant with emerald styling and instant booking flow.
  */
 export default function FloatingChatWidget() {
   const [widgetState, setWidgetState] = useState<WidgetState>("closed-idle");
@@ -31,7 +28,6 @@ export default function FloatingChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll chat to latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: shouldReduceMotion ? "auto" : "smooth" });
   };
@@ -42,7 +38,7 @@ export default function FloatingChatWidget() {
     }
   }, [messages, isTyping, widgetState]);
 
-  // Handle ~2.5s delayed greeting sequence (fires once per session)
+  // Delayed greeting trigger (~2.5s post-load)
   useEffect(() => {
     if (greetingDismissed) return;
 
@@ -58,7 +54,7 @@ export default function FloatingChatWidget() {
     return () => clearTimeout(timer);
   }, [greetingDismissed]);
 
-  // Handle auto-dismiss of greeting tooltip after ~8s
+  // Auto-dismiss greeting after ~8s
   useEffect(() => {
     if (widgetState !== "closed-with-greeting") return;
 
@@ -70,7 +66,7 @@ export default function FloatingChatWidget() {
     return () => clearTimeout(autoDismissTimer);
   }, [widgetState]);
 
-  // Handle outside click & Escape key to dismiss greeting or close chat
+  // Handle outside click & Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -105,7 +101,6 @@ export default function FloatingChatWidget() {
     };
   }, [widgetState]);
 
-  // Focus management on open/close
   const handleOpenChat = () => {
     setWidgetState("open");
     setGreetingDismissed(true);
@@ -127,7 +122,6 @@ export default function FloatingChatWidget() {
     setGreetingDismissed(true);
   };
 
-  // Message submission
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputValue).trim();
     if (!text || isTyping) return;
@@ -152,7 +146,7 @@ export default function FloatingChatWidget() {
         {
           id: `err-${Date.now()}`,
           sender: "sage",
-          text: "I'm having a brief connection hitch, but our team is standing by to take your order.",
+          text: "I'm having a brief connection hitch, but our team is ready to book your laundry.",
           timestamp: "Just now",
         },
       ]);
@@ -164,8 +158,8 @@ export default function FloatingChatWidget() {
   return (
     <div
       ref={widgetContainerRef}
-      className="fixed z-50 bottom-5 right-5 sm:bottom-6 sm:right-6 font-body"
-      aria-label="Sage AI Concierge Floating Widget"
+      className="fixed z-50 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans"
+      aria-label="Sage AI Laundry Assistant Widget"
     >
       {/* ─────────────────────────────────────────────────────────────
           STATE 3: OPEN CHAT PANEL
@@ -178,42 +172,36 @@ export default function FloatingChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[380px] sm:h-[520px] max-h-[92vh] flex flex-col rounded-2xl bg-surface border border-border-line shadow-2xl overflow-hidden z-50"
+            className="fixed inset-3 sm:inset-auto sm:bottom-0 sm:right-0 sm:w-[380px] sm:h-[520px] max-h-[92vh] flex flex-col rounded-3xl bg-white border border-slate-200 shadow-2xl overflow-hidden z-50"
             role="dialog"
             aria-modal="true"
             aria-label="Chat with Sage"
           >
-            {/* Panel Header */}
-            <div className="flex items-center justify-between px-4 py-3.5 bg-ink/90 border-b border-border-line">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3.5 bg-emerald-600 text-white">
               <div className="flex items-center gap-2.5">
-                {/* Sage Avatar SVG */}
-                <div className="relative w-8 h-8 rounded-lg bg-surface border border-sage/40 flex items-center justify-center shadow-inner">
-                  <svg className="w-5 h-5" viewBox="0 0 80 80" fill="none">
-                    <rect x="12" y="14" width="56" height="56" rx="16" fill="#1E2124" stroke="#7FA98A" strokeWidth="4" />
-                    <rect x="24" y="26" width="32" height="22" rx="8" fill="#15171A" stroke="#33373C" strokeWidth="2" />
-                    <circle cx="34" cy="37" r="3" fill="#7FA98A" />
-                    <circle cx="46" cy="37" r="3" fill="#7FA98A" />
-                    <path d="M37 42C38 43.5 42 43.5 43 42" stroke="#7FA98A" strokeWidth="2" strokeLinecap="round" />
-                    <circle cx="58" cy="22" r="5" fill="#C6A75C" />
+                <div className="relative w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
                   </svg>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-sage ring-2 ring-ink" />
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-300 ring-2 ring-emerald-600" />
                 </div>
 
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h2 className="text-sm font-semibold text-ivory leading-tight">Sage</h2>
-                    <span className="px-1.5 py-0.2 rounded bg-sage-muted text-[10px] font-utility text-sage uppercase font-medium">
+                    <h2 className="text-sm font-bold text-white leading-tight">Sage</h2>
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-700/60 text-[10px] font-utility text-emerald-100 uppercase font-semibold">
                       AI Assistant
                     </span>
                   </div>
-                  <p className="text-[11px] text-muted-text">Replies instantly • Book pickup &amp; dry cleaning</p>
+                  <p className="text-[11px] text-emerald-100/90">Instant booking • Doorstep pickup</p>
                 </div>
               </div>
 
-              {/* Close/Minimize Button */}
+              {/* Close Button */}
               <button
                 onClick={handleCloseChat}
-                className="p-1.5 rounded-lg text-muted-text hover:text-ivory hover:bg-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+                className="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 aria-label="Close chat"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -224,7 +212,7 @@ export default function FloatingChatWidget() {
 
             {/* Message Thread */}
             <div
-              className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs sm:text-[13px] bg-ink/40"
+              className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs sm:text-[13px] bg-slate-50/70"
               aria-live="polite"
             >
               {messages.map((msg) => (
@@ -233,52 +221,51 @@ export default function FloatingChatWidget() {
                   className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-sm ${
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs ${
                       msg.sender === "user"
-                        ? "bg-sage text-ink font-medium rounded-tr-sm"
-                        : "bg-surface border border-border-line text-ivory rounded-tl-sm"
+                        ? "bg-emerald-600 text-white font-medium rounded-tr-sm"
+                        : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
                     }`}
                   >
                     <p>{msg.text}</p>
 
-                    {/* Rendered Order Ticket Card if attached */}
+                    {/* Order Ticket Card */}
                     {msg.ticket && (
-                      <div className="mt-2.5 p-2.5 rounded-xl bg-ink border border-brass/40 shadow-brass-glow/10 text-left">
-                        <div className="flex items-center justify-between text-[11px] font-utility font-semibold text-brass mb-1">
+                      <div className="mt-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-left">
+                        <div className="flex items-center justify-between text-[11px] font-utility font-bold text-emerald-800 mb-1">
                           <span>{msg.ticket.id}</span>
-                          <span>DRAFT TICKET</span>
+                          <span className="px-1.5 py-0.2 bg-emerald-200/60 rounded">DRAFT ORDER</span>
                         </div>
-                        <div className="text-xs font-bold text-ivory mb-0.5">{msg.ticket.service}</div>
-                        <div className="text-[11px] text-muted-text mb-0.5">{msg.ticket.timing}</div>
-                        <div className="text-[11px] text-sage font-medium">{msg.ticket.items}</div>
+                        <div className="text-xs font-bold text-slate-900 mb-0.5">{msg.ticket.service}</div>
+                        <div className="text-[11px] text-slate-600 mb-0.5">{msg.ticket.timing}</div>
+                        <div className="text-[11px] text-emerald-700 font-semibold">{msg.ticket.items}</div>
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-muted-text mt-1 px-1 font-utility">
+                  <span className="text-[10px] text-slate-400 mt-1 px-1 font-utility">
                     {msg.timestamp}
                   </span>
                 </div>
               ))}
 
-              {/* Typing Indicator Bubble */}
               {isTyping && (
-                <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-surface border border-border-line w-fit">
-                  <span className="w-1.5 h-1.5 rounded-full bg-sage animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-sage animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-sage animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 w-fit shadow-xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               )}
 
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Prompt Carousel/Pills */}
-            <div className="px-3 py-2 bg-ink/60 border-t border-border-line/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {/* Quick Action Pills */}
+            <div className="px-3 py-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
               {SAGE_QUICK_PROMPTS.map((prompt, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(prompt)}
-                  className="whitespace-nowrap px-2.5 py-1 rounded-full bg-surface border border-border-line text-[11px] text-muted-text hover:text-ivory hover:border-sage/50 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+                  className="whitespace-nowrap px-3 py-1 rounded-full bg-slate-100 text-[11px] font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-transparent transition-colors"
                 >
                   {prompt}
                 </button>
@@ -291,7 +278,7 @@ export default function FloatingChatWidget() {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              className="p-3 bg-ink border-t border-border-line flex items-center gap-2"
+              className="p-3 bg-white border-t border-slate-100 flex items-center gap-2"
             >
               <input
                 ref={chatInputRef}
@@ -299,13 +286,13 @@ export default function FloatingChatWidget() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask Sage or request an order..."
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-surface border border-border-line text-ivory text-xs sm:text-sm placeholder:text-muted-text focus:outline-none focus:border-sage focus:ring-1 focus:ring-sage"
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs sm:text-sm placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 disabled={isTyping}
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isTyping}
-                className="p-2.5 rounded-xl bg-sage text-ink hover:bg-sage-dark hover:text-ivory transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage"
+                className="p-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-label="Send message"
               >
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -318,12 +305,12 @@ export default function FloatingChatWidget() {
       </AnimatePresence>
 
       {/* ─────────────────────────────────────────────────────────────
-          STATE 1 & 2: FLOATING TRIGGER BUTTON & GREETING SPEECH BUBBLE
+          STATE 1 & 2: FLOATING BUTTON & GREETING BUBBLE
          ───────────────────────────────────────────────────────────── */}
       {widgetState !== "open" && (
         <div className="relative flex items-center justify-end">
           
-          {/* Greeting Tooltip Card (State 2) */}
+          {/* Greeting Tooltip */}
           <AnimatePresence>
             {widgetState === "closed-with-greeting" && (
               <motion.div
@@ -333,27 +320,27 @@ export default function FloatingChatWidget() {
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, x: 10 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 onClick={handleOpenChat}
-                className="absolute right-16 sm:right-18 bottom-1 max-w-[240px] sm:max-w-[260px] p-3 rounded-2xl bg-surface border border-border-line shadow-2xl cursor-pointer hover:border-sage/50 transition-colors group"
+                className="absolute right-16 sm:right-18 bottom-1 max-w-[250px] sm:max-w-[270px] p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xl cursor-pointer hover:border-emerald-400 transition-colors group"
                 role="region"
                 aria-live="polite"
                 aria-label="Sage Greeting"
               >
-                {/* Speech Bubble Arrow */}
+                {/* Arrow */}
                 <div
-                  className="absolute -right-2 bottom-4 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-surface"
+                  className="absolute -right-2 bottom-4 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-white"
                   aria-hidden="true"
                 />
 
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-sage" />
-                    <span className="font-utility text-[10px] font-semibold text-sage uppercase tracking-wider">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="font-utility text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
                       Sage Assistant
                     </span>
                   </div>
                   <button
                     onClick={handleDismissGreeting}
-                    className="text-muted-text hover:text-ivory p-0.5 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sage"
+                    className="text-slate-400 hover:text-slate-700 p-0.5 rounded"
                     aria-label="Dismiss greeting"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -362,10 +349,10 @@ export default function FloatingChatWidget() {
                   </button>
                 </div>
 
-                <p className="text-xs text-ivory leading-relaxed font-body">
-                  Hey there — I&apos;m Sage. Need a quick doorstep laundry pickup or price check?
+                <p className="text-xs text-slate-800 leading-relaxed font-sans">
+                  Hey there! Need a quick doorstep laundry pickup or price estimate?
                 </p>
-                <div className="mt-2 text-[10px] font-utility text-sage group-hover:underline flex items-center gap-1">
+                <div className="mt-2 text-[10px] font-utility font-semibold text-emerald-600 group-hover:underline flex items-center gap-1">
                   <span>Chat now</span>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -375,33 +362,25 @@ export default function FloatingChatWidget() {
             )}
           </AnimatePresence>
 
-          {/* Floating Bubble Button */}
+          {/* Floating Trigger Button */}
           <motion.button
             ref={triggerButtonRef}
             onClick={handleOpenChat}
             animate={
               widgetState === "closed-with-greeting" && !shouldReduceMotion
                 ? {
-                    scale: [1, 1.18, 0.95, 1.08, 1],
+                    scale: [1, 1.15, 0.95, 1.05, 1],
                     transition: { duration: 0.6, ease: "easeOut" },
                   }
                 : {}
             }
-            className="group relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-sage hover:bg-sage-dark text-ink shadow-sage-glow flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-ink transform hover:-translate-y-0.5 active:translate-y-0"
+            className="group relative w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-glow shadow-xl flex items-center justify-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
             aria-label="Open chat with Sage"
           >
-            {/* Mascot Mini SVG Icon */}
-            <svg className="w-7 h-7" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="12" y="14" width="56" height="56" rx="16" fill="#15171A" stroke="#15171A" strokeWidth="2" />
-              <rect x="24" y="26" width="32" height="22" rx="8" fill="#1E2124" stroke="#7FA98A" strokeWidth="2" />
-              <circle cx="34" cy="37" r="3" fill="#7FA98A" />
-              <circle cx="46" cy="37" r="3" fill="#7FA98A" />
-              <path d="M37 42C38 43.5 42 43.5 43 42" stroke="#7FA98A" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="58" cy="22" r="5" fill="#C6A75C" />
+            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-
-            {/* Subtle Pulse Ring */}
-            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-brass ring-2 ring-ink" />
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-400 ring-2 ring-white" />
           </motion.button>
 
         </div>

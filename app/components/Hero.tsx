@@ -1,562 +1,259 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 
 /**
- * Ogawash Hero Component
- * Full-service laundry & dry cleaning landing hero with ambient mascot & 3-stage animated process scene.
+ * Hero Component
+ * Matches the reference design with big centered typography, emerald accent,
+ * Get Started CTA, and central laundry bag visual with floating animated badges.
  */
 export default function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Subtle entrance animation variants for text elements
-  const textContainerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
+  // Floating ambient animation for the micro badges
+  const floatBadgeVariants: Variants = {
+    animate: (custom: number) => ({
+      y: shouldReduceMotion ? 0 : [0, -8, 0],
+      rotate: shouldReduceMotion ? 0 : [0, custom % 2 === 0 ? 2 : -2, 0],
       transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.12,
-        delayChildren: 0.1,
-      },
-    },
-  };
-
-  const textItemVariants: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: shouldReduceMotion ? 0.01 : 0.6,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  // Stage card reveal variants for scroll/in-view trigger
-  const stageContainerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.2,
-        delayChildren: shouldReduceMotion ? 0 : 0.35,
-      },
-    },
-  };
-
-  const stageItemVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: shouldReduceMotion ? 0 : 20,
-      scale: shouldReduceMotion ? 1 : 0.96,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: shouldReduceMotion ? 0.01 : 0.65,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  // Mascot ambient idle animation variants
-  const mascotIdleVariants: Variants = {
-    idle: {
-      y: shouldReduceMotion ? 0 : [0, -6, 0],
-      rotate: shouldReduceMotion ? 0 : [0, 1.2, -1.2, 0],
-      transition: {
-        duration: 4.5,
+        duration: 3.5 + custom * 0.4,
         repeat: Infinity,
         ease: "easeInOut",
       },
-    },
+    }),
   };
 
-  const mascotBlinkVariants: Variants = {
-    idle: {
-      scaleY: shouldReduceMotion ? 1 : [1, 1, 0.1, 1, 1, 1],
-      transition: {
-        duration: 3.8,
-        repeat: Infinity,
-        times: [0, 0.85, 0.88, 0.91, 0.95, 1],
-      },
-    },
-  };
-
-  const badgePulseVariants: Variants = {
-    idle: {
-      scale: shouldReduceMotion ? 1 : [1, 1.06, 1],
-      opacity: shouldReduceMotion ? 1 : [0.9, 1, 0.9],
-      transition: {
-        duration: 2.8,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
+  const entranceVariants: Variants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
     },
   };
 
   return (
     <section
       id="hero"
-      ref={heroRef}
       aria-label="Ogawash Hero"
-      className="relative w-full min-h-screen flex flex-col items-center justify-start pt-28 sm:pt-32 pb-24 px-4 sm:px-6 lg:px-8 bg-ink overflow-hidden"
+      className="relative w-full pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-emerald-50/40 via-white to-white overflow-hidden"
     >
-      {/* Background Subtle Gradient & Grid Texture */}
+      {/* Background Soft Radiant Circles */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-25"
-        style={{
-          backgroundImage: `radial-gradient(circle at 50% 15%, rgba(127, 169, 138, 0.18), transparent 55%),
-                            radial-gradient(circle at 80% 60%, rgba(198, 167, 92, 0.08), transparent 45%)`,
-        }}
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[800px] h-[400px] bg-gradient-to-tr from-emerald-200/30 to-teal-100/30 rounded-full blur-3xl pointer-events-none"
         aria-hidden="true"
       />
 
-      {/* Subtle Dot Matrix Backdrop */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: `radial-gradient(#F3F0E8 1px, transparent 1px)`,
-          backgroundSize: "24px 24px",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Centered Content Container */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center text-center">
         
-        {/* Text Stack */}
-        <motion.div
-          variants={textContainerVariants}
+        {/* Main Headline */}
+        <motion.h1
+          variants={entranceVariants}
           initial="hidden"
           animate="visible"
-          className="flex flex-col items-center max-w-[640px] mx-auto"
+          className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-extrabold text-slate-900 tracking-tight leading-[1.12] sm:leading-[1.08] max-w-4xl mb-6 text-balance"
         >
-          {/* Eyebrow */}
-          <motion.div variants={textItemVariants} className="mb-4">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sage-muted border border-sage/30 text-sage font-utility text-xs sm:text-xs font-semibold tracking-widest uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-sage animate-pulse" aria-hidden="true" />
-              FULL-SERVICE LAUNDRY & DRY CLEANING
-            </span>
-          </motion.div>
+          Laundry <span className="text-emerald-600">Made</span> Simple, <br className="hidden sm:inline" />
+          Fast and Fresh.
+        </motion.h1>
 
-          {/* Headline */}
-          <motion.h1
-            variants={textItemVariants}
-            className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-medium text-ivory tracking-tight leading-[1.08] sm:leading-[1.05] mb-5 text-balance"
+        {/* Subheadline */}
+        <motion.p
+          variants={entranceVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.1 }}
+          className="font-sans text-sm sm:text-base md:text-lg text-slate-600 max-w-2xl leading-relaxed mb-8 text-balance"
+        >
+          Schedule a pickup in seconds and get your laundry delivered fresh and folded.
+          Reliable service, affordable rates, and zero stress — every time.
+        </motion.p>
+
+        {/* CTA Button */}
+        <motion.div
+          variants={entranceVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.2 }}
+          className="mb-14 sm:mb-16"
+        >
+          <a
+            href="#talk-to-sage"
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-sm sm:text-base font-semibold tracking-wide shadow-emerald-glow shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            Every order, tagged, sorted, sent to the right hands.
-          </motion.h1>
-
-          {/* Subheadline */}
-          <motion.p
-            variants={textItemVariants}
-            className="font-body text-base sm:text-lg text-muted-text max-w-[480px] leading-relaxed mb-8 text-balance"
-          >
-            Meet Sage, your AI laundry assistant who takes your order, tracks fabric care, and arranges seamless door-to-door delivery with master cleaners.
-          </motion.p>
-
-          {/* CTA Button */}
-          <motion.div variants={textItemVariants} className="flex flex-col sm:flex-row items-center gap-3">
-            <a
-              href="#talk-to-sage"
-              className="group relative inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-sage text-ink font-body font-semibold text-sm sm:text-base tracking-wide shadow-sage-glow hover:bg-sage-dark hover:text-ivory transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:ring-offset-ink transform hover:-translate-y-0.5 active:translate-y-0"
-              aria-label="Book on Chat with Sage - AI Laundry Assistant"
-            >
-              <span>Book on Chat</span>
-              <svg
-                className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3.33334 8H12.6667M12.6667 8L8.66668 4M12.6667 8L8.66668 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-          </motion.div>
+            Get Started
+          </a>
         </motion.div>
 
-        {/* Generous Spacing (~64px) into Centerpiece Illustration */}
-        <div className="w-full mt-14 sm:mt-16 relative">
+        {/* Centerpiece Visual: Laundry Duffel Bag with Floating Badges */}
+        <div className="relative w-full max-w-2xl mx-auto flex items-center justify-center pt-4 pb-8">
           
-          {/* Mascot Header / Floating Guide */}
-          <div className="flex flex-col items-center mb-6">
-            <motion.div
-              variants={mascotIdleVariants}
-              animate="idle"
-              className="relative flex items-center justify-center"
-              aria-label="Sage Mascot Character"
-            >
-              {/* Mascot Geometric SVG */}
-              <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-                {/* Glow ring */}
-                <div className="absolute inset-0 bg-sage/15 rounded-2xl blur-md" aria-hidden="true" />
-                
-                {/* Mascot Body */}
-                <svg
-                  className="w-full h-full relative drop-shadow-md"
-                  viewBox="0 0 80 80"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  role="img"
-                  aria-label="Sage, friendly AI laundry assistant mascot"
-                >
-                  {/* Subtle shadow base */}
-                  <ellipse cx="40" cy="74" rx="24" ry="4" fill="#0E1012" opacity="0.6" />
-                  
-                  {/* Main Rounded Body */}
-                  <rect
-                    x="12"
-                    y="14"
-                    width="56"
-                    height="56"
-                    rx="20"
-                    fill="#1E2124"
-                    stroke="#7FA98A"
-                    strokeWidth="2.5"
-                  />
-
-                  {/* Concierge Brass Badge Accent */}
-                  <circle cx="60" cy="22" r="6" fill="#C6A75C" stroke="#15171A" strokeWidth="1.5" />
-                  <path
-                    d="M60 19V25M57 22H63"
-                    stroke="#15171A"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Soft Screen Visor */}
-                  <rect
-                    x="22"
-                    y="26"
-                    width="36"
-                    height="24"
-                    rx="10"
-                    fill="#15171A"
-                    stroke="#33373C"
-                    strokeWidth="1.5"
-                  />
-
-                  {/* Friendly Eyes with Ambient Blink */}
-                  <motion.g variants={mascotBlinkVariants} animate="idle" style={{ transformOrigin: "40px 38px" }}>
-                    {/* Left Eye */}
-                    <circle cx="33" cy="38" r="3.2" fill="#7FA98A" />
-                    <circle cx="34" cy="37" r="1" fill="#F3F0E8" />
-                    
-                    {/* Right Eye */}
-                    <circle cx="47" cy="38" r="3.2" fill="#7FA98A" />
-                    <circle cx="48" cy="37" r="1" fill="#F3F0E8" />
-                  </motion.g>
-
-                  {/* Friendly Warm Smile */}
-                  <path
-                    d="M36 43C37.5 45 42.5 45 44 43"
-                    stroke="#7FA98A"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Cute Soft Blush Marks */}
-                  <ellipse cx="28" cy="42" rx="2" ry="1" fill="#C6A75C" opacity="0.6" />
-                  <ellipse cx="52" cy="42" rx="2" ry="1" fill="#C6A75C" opacity="0.6" />
-                </svg>
-              </div>
-
-              {/* Status Tag Pill attached to Mascot */}
-              <motion.div
-                variants={badgePulseVariants}
-                animate="idle"
-                className="absolute -top-3 -right-12 sm:-right-14 px-2.5 py-0.5 rounded-full bg-surface border border-brass/40 shadow-brass-glow flex items-center gap-1.5"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-brass" aria-hidden="true" />
-                <span className="font-utility text-[10px] text-brass font-medium uppercase tracking-wider">
-                  Sage Active
-                </span>
-              </motion.div>
-            </motion.div>
-
-            <span className="mt-2 text-xs font-utility text-muted-text uppercase tracking-widest">
-              Live Order Flow
-            </span>
-          </div>
-
-          {/* 3-Stage Process Progression Scene */}
+          {/* ─────────────────────────────────────────────────────────────
+              FLOATING MICRO-BADGES (as seen in the reference)
+             ───────────────────────────────────────────────────────────── */}
+          
+          {/* Badge 1: Top-Left (Dress Shirt) */}
           <motion.div
-            variants={stageContainerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 relative z-10"
-            aria-label="Ogawash 3-step concierge process: Smart Intake, Fabric Care & Press, and Crisp Delivery"
+            custom={1}
+            variants={floatBadgeVariants}
+            animate="animate"
+            className="absolute -top-4 left-4 sm:left-12 p-3 sm:p-3.5 rounded-2xl bg-white shadow-card-hover border border-slate-100 flex items-center justify-center z-20"
+            aria-hidden="true"
           >
-            {/* STAGE 1: Intake & Tagging */}
-            <motion.div
-              variants={stageItemVariants}
-              className="group relative flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-surface border border-border-line hover:border-sage/40 transition-colors duration-300 shadow-card-subtle"
-            >
-              {/* Step indicator badge */}
-              <div className="absolute top-3.5 left-3.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-ink border border-border-line text-[11px] font-utility text-sage">
-                <span>01</span>
-              </div>
-
-              {/* Stage SVG Graphic */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 my-2 flex items-center justify-center relative">
-                <svg
-                  className="w-full h-full text-sage"
-                  viewBox="0 0 96 96"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  {/* Canvas Laundry Bag Body */}
-                  <path
-                    d="M32 30C32 26 36 22 48 22C60 22 64 26 64 30L68 70C68 76 62 80 48 80C34 80 28 76 28 70L32 30Z"
-                    fill="#15171A"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                    strokeLinejoin="round"
-                  />
-                  {/* Bag Cinched Neck */}
-                  <path
-                    d="M34 30C40 33 56 33 62 30"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  {/* Bag Drawstring Tie */}
-                  <path
-                    d="M48 24V16M44 16H52"
-                    stroke="#C6A75C"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  {/* Order Ticket Tag (Brass Accent) */}
-                  <rect
-                    x="48"
-                    y="42"
-                    width="26"
-                    height="18"
-                    rx="3"
-                    fill="#1E2124"
-                    stroke="#C6A75C"
-                    strokeWidth="1.5"
-                  />
-                  <line x1="52" y1="47" x2="68" y2="47" stroke="#C6A75C" strokeWidth="1.2" strokeLinecap="round" />
-                  <line x1="52" y1="52" x2="62" y2="52" stroke="#7FA98A" strokeWidth="1.2" strokeLinecap="round" />
-                  <circle cx="50" cy="40" r="1.5" fill="#C6A75C" />
-                  <line x1="50" y1="41.5" x2="52" y2="44" stroke="#C6A75C" strokeWidth="1" />
-                </svg>
-              </div>
-
-              {/* Stage Content */}
-              <h3 className="font-display text-lg font-medium text-ivory mb-1.5">
-                Smart Intake &amp; Tag
-              </h3>
-              <p className="font-body text-xs sm:text-sm text-muted-text leading-relaxed">
-                Bag is barcoded and digitally logged. Garment care labels are cataloged into Sage’s care matrix.
-              </p>
-              
-              <div className="mt-3 pt-2.5 border-t border-border-line/60 w-full flex items-center justify-between text-[11px] font-utility text-muted-text">
-                <span>STAGE</span>
-                <span className="text-sage font-medium">BARCODE LOGGED</span>
-              </div>
-            </motion.div>
-
-            {/* STAGE 2: Care & Steam Press */}
-            <motion.div
-              variants={stageItemVariants}
-              className="group relative flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-surface border border-border-line hover:border-sage/40 transition-colors duration-300 shadow-card-subtle"
-            >
-              {/* Step indicator badge */}
-              <div className="absolute top-3.5 left-3.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-ink border border-border-line text-[11px] font-utility text-sage">
-                <span>02</span>
-              </div>
-
-              {/* Stage SVG Graphic */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 my-2 flex items-center justify-center relative">
-                <svg
-                  className="w-full h-full text-sage"
-                  viewBox="0 0 96 96"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  {/* Stylized Washer / Press Housing */}
-                  <rect
-                    x="20"
-                    y="18"
-                    width="56"
-                    height="62"
-                    rx="8"
-                    fill="#15171A"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                  />
-                  {/* Top Control Panel */}
-                  <line x1="20" y1="30" x2="76" y2="30" stroke="#33373C" strokeWidth="1.5" />
-                  {/* Brass Dial Knob */}
-                  <circle cx="30" cy="24" r="3" fill="#C6A75C" />
-                  <circle cx="68" cy="24" r="2" fill="#7FA98A" />
-                  <circle cx="62" cy="24" r="2" fill="#7FA98A" opacity="0.6" />
-
-                  {/* Washer Glass Drum Outer */}
-                  <circle cx="48" cy="54" r="18" stroke="#7FA98A" strokeWidth="2" fill="#1E2124" />
-                  {/* Drum Inner Ring */}
-                  <circle cx="48" cy="54" r="12" stroke="#33373C" strokeWidth="1.5" strokeDasharray="3 3" />
-                  
-                  {/* Gentle Hydro Water Wave */}
-                  <path
-                    d="M38 56C41 54 44 58 48 56C52 54 55 58 58 56"
-                    stroke="#7FA98A"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                  
-                  {/* Steam / Ozone Sparkles */}
-                  <path
-                    d="M74 38L75 42L79 43L75 44L74 48L73 44L69 43L73 42L74 38Z"
-                    fill="#C6A75C"
-                    opacity="0.8"
-                  />
-                </svg>
-              </div>
-
-              {/* Stage Content */}
-              <h3 className="font-display text-lg font-medium text-ivory mb-1.5">
-                Precision Wash &amp; Press
-              </h3>
-              <p className="font-body text-xs sm:text-sm text-muted-text leading-relaxed">
-                Custom water hardness, eco-friendly solvent balance, and delicate hand-finished steam pressing.
-              </p>
-
-              <div className="mt-3 pt-2.5 border-t border-border-line/60 w-full flex items-center justify-between text-[11px] font-utility text-muted-text">
-                <span>CYCLE</span>
-                <span className="text-brass font-medium">CUSTOM THERMAL</span>
-              </div>
-            </motion.div>
-
-            {/* STAGE 3: Folded & Dispatch Ready */}
-            <motion.div
-              variants={stageItemVariants}
-              className="group relative flex flex-col items-center text-center p-5 sm:p-6 rounded-2xl bg-surface border border-border-line hover:border-sage/40 transition-colors duration-300 shadow-card-subtle"
-            >
-              {/* Step indicator badge */}
-              <div className="absolute top-3.5 left-3.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-ink border border-border-line text-[11px] font-utility text-sage">
-                <span>03</span>
-              </div>
-
-              {/* Stage SVG Graphic */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 my-2 flex items-center justify-center relative">
-                <svg
-                  className="w-full h-full text-sage"
-                  viewBox="0 0 96 96"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
-                >
-                  {/* Base Garment Fold Bottom */}
-                  <rect
-                    x="22"
-                    y="60"
-                    width="52"
-                    height="14"
-                    rx="4"
-                    fill="#15171A"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                  />
-                  {/* Middle Garment Fold */}
-                  <rect
-                    x="26"
-                    y="46"
-                    width="44"
-                    height="14"
-                    rx="4"
-                    fill="#1E2124"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                  />
-                  {/* Top Garment / Crisp Collar */}
-                  <rect
-                    x="30"
-                    y="32"
-                    width="36"
-                    height="14"
-                    rx="4"
-                    fill="#15171A"
-                    stroke="#7FA98A"
-                    strokeWidth="2"
-                  />
-                  {/* Collar V-fold */}
-                  <path
-                    d="M40 32L48 40L56 32"
-                    stroke="#7FA98A"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  
-                  {/* Dispatch Brass Seal Badge */}
-                  <circle cx="68" cy="30" r="10" fill="#1E2124" stroke="#C6A75C" strokeWidth="1.5" />
-                  <path
-                    d="M64 30L67 33L73 27"
-                    stroke="#C6A75C"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-
-              {/* Stage Content */}
-              <h3 className="font-display text-lg font-medium text-ivory mb-1.5">
-                Crisp Fold &amp; Delivery
-              </h3>
-              <p className="font-body text-xs sm:text-sm text-muted-text leading-relaxed">
-                Packaged in breathable garment shields, sealed with inspection seals, and sent to your doorstep.
-              </p>
-
-              <div className="mt-3 pt-2.5 border-t border-border-line/60 w-full flex items-center justify-between text-[11px] font-utility text-muted-text">
-                <span>STATUS</span>
-                <span className="text-sage font-medium">READY FOR DISPATCH</span>
-              </div>
-            </motion.div>
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10a2 2 0 002 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z" />
+            </svg>
           </motion.div>
 
-          {/* Micro Logistics Indicator Footer */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs font-utility text-muted-text">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Same-Day Express Available</span>
-            </div>
-            <div className="w-1 h-1 rounded-full bg-border-line hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span>End-to-End Barcode Tracking</span>
-            </div>
-            <div className="w-1 h-1 rounded-full bg-border-line hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-              <span>Master Cleaner Guarantee</span>
-            </div>
+          {/* Badge 2: Mid-Left (Steam Iron) */}
+          <motion.div
+            custom={2}
+            variants={floatBadgeVariants}
+            animate="animate"
+            className="absolute top-1/2 -translate-y-1/2 -left-2 sm:left-2 p-3 sm:p-3.5 rounded-2xl bg-white shadow-card-hover border border-slate-100 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 16h20v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2z" />
+              <path d="M4 16V8a4 4 0 014-4h4a8 8 0 018 8v4" />
+              <path d="M8 12h.01" />
+              <path d="M12 12h.01" />
+              <path d="M16 12h.01" />
+            </svg>
+          </motion.div>
+
+          {/* Badge 3: Top-Right (Suit Jacket / Hanger) */}
+          <motion.div
+            custom={3}
+            variants={floatBadgeVariants}
+            animate="animate"
+            className="absolute -top-4 right-4 sm:right-12 p-3 sm:p-3.5 rounded-2xl bg-white shadow-card-hover border border-slate-100 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a3 3 0 00-3 3c0 .88.39 1.67 1 2.22V8L2 14l2 8 8-4 8 4 2-8-8-6v-.78c.61-.55 1-1.34 1-2.22a3 3 0 00-3-3z" />
+            </svg>
+          </motion.div>
+
+          {/* Badge 4: Mid-Right (Clean Laundry Detergent / Fresh Drop) */}
+          <motion.div
+            custom={4}
+            variants={floatBadgeVariants}
+            animate="animate"
+            className="absolute top-1/3 -right-2 sm:right-2 p-3 sm:p-3.5 rounded-2xl bg-white shadow-card-hover border border-slate-100 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+            </svg>
+          </motion.div>
+
+          {/* Badge 5: Bottom-Right (Folded Laundry Stack) */}
+          <motion.div
+            custom={5}
+            variants={floatBadgeVariants}
+            animate="animate"
+            className="absolute -bottom-2 right-6 sm:right-16 p-3 sm:p-3.5 rounded-2xl bg-white shadow-card-hover border border-slate-100 flex items-center justify-center z-20"
+            aria-hidden="true"
+          >
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="5" width="20" height="4" rx="2" />
+              <rect x="3" y="11" width="18" height="4" rx="2" />
+              <rect x="4" y="17" width="16" height="4" rx="2" />
+            </svg>
+          </motion.div>
+
+          {/* Central High-Fidelity Duffel Bag SVG Representation */}
+          <div className="relative w-full max-w-lg aspect-[16/10] flex items-center justify-center">
+            <svg
+              className="w-full h-full drop-shadow-2xl"
+              viewBox="0 0 540 320"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Ogawash Premium Laundry Duffel Bag"
+            >
+              <defs>
+                {/* Bag Fabric Gradients */}
+                <linearGradient id="duffelBody" x1="0" y1="100" x2="540" y2="300" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#64748B" />
+                  <stop offset="50%" stopColor="#475569" />
+                  <stop offset="100%" stopColor="#334155" />
+                </linearGradient>
+
+                <linearGradient id="duffelHighlight" x1="270" y1="100" x2="270" y2="280" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#94A3B8" />
+                  <stop offset="100%" stopColor="#475569" />
+                </linearGradient>
+
+                <linearGradient id="strapGrad" x1="0" y1="40" x2="0" y2="280" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#334155" />
+                  <stop offset="100%" stopColor="#1E293B" />
+                </linearGradient>
+
+                <filter id="shadowAura" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="16" stdDeviation="20" floodColor="#0F172A" floodOpacity="0.2" />
+                </filter>
+              </defs>
+
+              {/* Floor Shadow */}
+              <ellipse cx="270" cy="295" rx="220" ry="18" fill="#0F172A" opacity="0.15" />
+
+              {/* Main Barrel Duffel Body */}
+              <g filter="url(#shadowAura)">
+                <rect x="70" y="100" width="400" height="175" rx="55" fill="url(#duffelBody)" />
+                
+                {/* Cylindrical Side End-Caps */}
+                <ellipse cx="110" cy="187.5" rx="35" ry="87.5" fill="#334155" />
+                <ellipse cx="110" cy="187.5" rx="30" ry="80" fill="#475569" />
+                <ellipse cx="430" cy="187.5" rx="35" ry="87.5" fill="#475569" />
+
+                {/* Central Front Panel Highlight */}
+                <path
+                  d="M130 115C200 108 340 108 410 115L415 260C340 268 200 268 125 260Z"
+                  fill="url(#duffelHighlight)"
+                  opacity="0.9"
+                />
+
+                {/* Horizontal Heavy Zipper Track */}
+                <path d="M120 128H420" stroke="#1E293B" strokeWidth="6" strokeLinecap="round" />
+                <path d="M120 128H420" stroke="#94A3B8" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" />
+
+                {/* Silver Metal Zipper Pull */}
+                <rect x="255" y="123" width="14" height="18" rx="3" fill="#E2E8F0" stroke="#475569" strokeWidth="1.5" />
+                <circle cx="262" cy="130" r="2.5" fill="#0F172A" />
+
+                {/* Reinforced Webbing Straps (Vertical Front Bands) */}
+                <path d="M190 98V270" stroke="url(#strapGrad)" strokeWidth="24" strokeLinecap="round" />
+                <path d="M190 98V270" stroke="#64748B" strokeWidth="2" strokeDasharray="3 3" />
+
+                <path d="M350 98V270" stroke="url(#strapGrad)" strokeWidth="24" strokeLinecap="round" />
+                <path d="M350 98V270" stroke="#64748B" strokeWidth="2" strokeDasharray="3 3" />
+
+                {/* Handle Arch (Over the top) */}
+                <path
+                  d="M190 100C190 35 350 35 350 100"
+                  stroke="url(#strapGrad)"
+                  strokeWidth="22"
+                  strokeLinecap="round"
+                />
+
+                {/* Padded Top Comfort Grip */}
+                <rect x="215" y="34" width="110" height="34" rx="10" fill="#1E293B" stroke="#475569" strokeWidth="2" />
+                <line x1="225" y1="44" x2="315" y2="44" stroke="#64748B" strokeWidth="1.5" strokeDasharray="4 3" />
+                <line x1="225" y1="58" x2="315" y2="58" stroke="#64748B" strokeWidth="1.5" strokeDasharray="4 3" />
+
+                {/* Ogawash Brand Patch on Front Center */}
+                <rect x="235" y="175" width="70" height="40" rx="8" fill="#10B981" />
+                <text x="270" y="196" fill="#FFFFFF" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="sans-serif">
+                  OGAWASH
+                </text>
+                <text x="270" y="207" fill="#D1FAE5" fontSize="7" fontWeight="600" textAnchor="middle" fontFamily="sans-serif">
+                  CARE MATRIX
+                </text>
+              </g>
+            </svg>
           </div>
 
         </div>
