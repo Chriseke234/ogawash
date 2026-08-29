@@ -89,17 +89,10 @@ export default function Navbar() {
           {/* Right Action Buttons */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => openSageChat("Hi Sage, I'd like to check my account or track an order.")}
-              className="hidden sm:inline-block text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors px-3 py-2 cursor-pointer"
+              onClick={() => openSageChat("Hello Sage, I would like to book a laundry pickup with OgaWash now.")}
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-xs sm:text-sm font-semibold tracking-wide shadow-emerald-glow/50 shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
-              Sign In
-            </button>
-
-            <button
-              onClick={() => openSageChat("Hello! I want to get started with an order.")}
-              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-xs sm:text-sm font-semibold tracking-wide shadow-emerald-glow/50 shadow-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-            >
-              Get Started
+              Book Us Now
             </button>
 
             {/* Mobile Hamburger Toggle */}
@@ -168,11 +161,11 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       setIsMobileOpen(false);
-                      openSageChat("Hi Sage, I'd like to book a laundry pickup.");
+                      openSageChat("Hello Sage, I would like to book a laundry pickup with OgaWash now.");
                     }}
                     className="w-full py-3 rounded-full bg-emerald-600 text-white font-semibold text-sm text-center shadow-md hover:bg-emerald-700 transition-colors cursor-pointer"
                   >
-                    Book Pickup with Sage
+                    Book Us Now
                   </button>
                 </div>
               </div>

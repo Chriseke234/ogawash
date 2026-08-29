@@ -4,6 +4,7 @@ import HowItWorks from "./components/HowItWorks";
 import WhyChooseUs from "./components/WhyChooseUs";
 import Services from "./components/Services";
 import Testimonials from "./components/Testimonials";
+import CallToAction from "./components/CallToAction";
 import Footer from "./components/Footer";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
       <Services />
       <Testimonials />
       {/* TODO: Pricing section */}
+      <CallToAction />
       <Footer />
     </main>
   );

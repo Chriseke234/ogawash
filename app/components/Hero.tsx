@@ -94,10 +94,10 @@ export default function Hero() {
           className="mb-14 sm:mb-16"
         >
           <button
-            onClick={() => openSageChat("Hi Sage, I'd like to book a laundry pickup.")}
+            onClick={() => openSageChat("Hello Sage, I would like to book a laundry pickup with OgaWash now.")}
             className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-sans text-sm sm:text-base font-semibold tracking-wide shadow-emerald-glow shadow-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
           >
-            <span>Get Started</span>
+            <span>Book Us Now</span>
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
             </svg>
